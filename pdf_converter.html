@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Converter - Estonian Studies Notes</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Standalone page specific styles */
+        .standalone-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+        
+        .standalone-header {
+            background: var(--bg-secondary);
+            border-bottom: 3px solid var(--estonian-blue);
+            padding: 1.5rem 2rem;
+        }
+        
+        .standalone-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .back-link {
+            color: var(--estonian-blue);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--estonian-blue-light);
+        }
+        
+        .standalone-main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: lowercase;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Enhanced PDF converter styles for standalone page */
+        .standalone-pdf-converter {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .converter-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--estonian-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .section-header h3 {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* PDF Selection Interface */
+        .pdf-selection-section {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--estonian-blue);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .course-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-button {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .filter-button:hover {
+            color: var(--text-primary);
+            border-color: var(--estonian-blue);
+        }
+        
+        .filter-button.active {
+            background: var(--estonian-blue);
+            color: white;
+            border-color: var(--estonian-blue);
+        }
+        
+        .pdf-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .pdf-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .pdf-item:hover {
+            border-color: var(--estonian-blue);
+            background: rgba(0, 114, 206, 0.05);
+        }
+        
+        .pdf-item.selected {
+            border-color: var(--estonian-blue);
+            background: rgba(0, 114, 206, 0.1);
+        }
+        
+        .pdf-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            opacity: 0.7;
+        }
+        
+        .pdf-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .pdf-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        .pdf-course {
+            font-size: 0.8rem;
+            color: var(--estonian-blue);
+            font-weight: 400;
+        }
+        
+        .pdf-size {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .selected-pdf {
+            background: rgba(0, 114, 206, 0.1);
+            border: 1px solid var(--estonian-blue);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .selected-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .selected-icon {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+        
+        .selected-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .selected-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .selected-course {
+            font-size: 0.875rem;
+            color: var(--estonian-blue);
+        }
+        
+        .clear-selection {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .clear-selection:hover {
+            color: var(--error);
+            border-color: var(--error);
+        }
+        
+        .loading-message {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-style: italic;
+        }
+        
+        .course-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .course-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--estonian-blue);
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--estonian-blue);
+        }
+        
+        /* Status indicator */
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 1000;
+        }
+        
+        .api-status.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .api-status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+        
+        @media (max-width: 768px) {
+            .standalone-header {
+                padding: 1rem;
+            }
+            
+            .standalone-main {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                font-weight: 300;
+                letter-spacing: 0.05em;
+            }
+            
+            .converter-section {
+                padding: 1.5rem;
+            }
+            
+            .standalone-upload-area {
+                padding: 3rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="standalone-container">
+        <!-- Header -->
+        <header class="standalone-header">
+            <div class="standalone-header-content">
+                <a href="index.html" class="back-link">
+                    ← Back to Estonian Studies
+                </a>
+                <div class="flag-accent"></div>
+            </div>
+        </header>
+
+        <!-- API Status Indicator -->
+        <div class="api-status offline" id="apiStatus">API Offline</div>
+
+        <!-- Main Content -->
+        <main class="standalone-main">
+            <div class="page-header">
+                <h1 class="page-title">PDF Content Extractor</h1>
+                <p class="page-subtitle">
+                    Extract and analyze text, tables, and images from PDF documents using advanced AI-powered tools
+                </p>
+            </div>
+
+            <div class="standalone-pdf-converter">
+                <!-- PDF Selection Section -->
+                <div class="converter-section">
+                    <div class="section-header">
+                        <div class="section-icon">📚</div>
+                        <h3>Select Document</h3>
+                    </div>
+                    
+                    <div class="pdf-selection-section">
+                        <div class="search-bar">
+                            <input type="text" id="searchInput" placeholder="Search documents..." class="search-input">
+                            <div class="search-icon">🔍</div>
+                        </div>
+                        
+                        <div class="course-filter">
+                            <button class="filter-button active" data-course="all">All Courses</button>
+                            <button class="filter-button" data-course="estonian-regional-studies">Estonian Regional Studies</button>
+                            <button class="filter-button" data-course="introduction-to-estonian-studies">Introduction to Estonian Studies</button>
+                            <button class="filter-button" data-course="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</button>
+                            <button class="filter-button" data-course="language-and-society">Language and Society</button>
+                            <button class="filter-button" data-course="nationalism-transnational-history">Nationalism & Transnational History</button>
+                        </div>
+                        
+                        <div class="pdf-list" id="pdfList">
+                            <!-- PDF items will be populated by JavaScript -->
+                            <div class="loading-message">Loading documents...</div>
+                        </div>
+                        
+                        <div class="selected-pdf" id="selectedPdf" style="display: none;">
+                            <div class="selected-info">
+                                <span class="selected-icon">✓</span>
+                                <div class="selected-details">
+                                    <span class="selected-name" id="selectedName"></span>
+                                    <span class="selected-course" id="selectedCourse"></span>
+                                </div>
+                            </div>
+                            <button class="clear-selection" id="clearSelection">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extraction Options -->
+                <div class="converter-section">
+                    <div class="section-header">
+                        <div class="section-icon">⚙️</div>
+                        <h3>Extraction Options</h3>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <h4>Content Types</h4>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="extractText" checked>
+                                <span class="checkmark"></span>
+                                Extract Text Content
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="extractTables" checked>
+                                <span class="checkmark"></span>
+                                Extract Tables & Data
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="extractFigures">
+                                <span class="checkmark"></span>
+                                Extract Figures & Images
+                            </label>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4>Advanced Analysis</h4>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="includeStyling">
+                                <span class="checkmark"></span>
+                                Include Styling Information
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="includeCharBounds">
+                                <span class="checkmark"></span>
+                                Character Positioning
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="converter-section">
+                    <div class="section-header">
+                        <div class="section-icon">🚀</div>
+                        <h3>Quick Presets</h3>
+                    </div>
+                    
+                    <div class="preset-buttons">
+                        <button class="preset-button" onclick="setPreset('text')">
+                            <span class="preset-icon">📝</span>
+                            Text Only
+                            <small style="display: block; color: var(--text-muted); margin-top: 0.25rem;">
+                                Fast extraction for text documents
+                            </small>
+                        </button>
+                        <button class="preset-button" onclick="setPreset('tables')">
+                            <span class="preset-icon">📊</span>
+                            With Tables
+                            <small style="display: block; color: var(--text-muted); margin-top: 0.25rem;">
+                                Extract text and structured tables
+                            </small>
+                        </button>
+                        <button class="preset-button" onclick="setPreset('comprehensive')">
+                            <span class="preset-icon">🔍</span>
+                            Comprehensive
+                            <small style="display: block; color: var(--text-muted); margin-top: 0.25rem;">
+                                Full analysis with all features
+                            </small>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Convert Section -->
+                <div class="converter-section">
+                    <div class="convert-section">
+                        <button class="convert-button" id="convertButton" disabled>
+                            <span class="button-text">Start Extraction</span>
+                            <div class="loading-spinner" style="display: none;"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="converter-section" id="resultsSection" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-icon">✅</div>
+                        <h3>Extraction Results</h3>
+                    </div>
+                    
+                    <div class="results-header">
+                        <div class="result-info">
+                            <span class="extraction-id" id="extractionId"></span>
+                            <span class="processing-time" id="processingTime"></span>
+                        </div>
+                        <div class="result-actions">
+                            <button class="action-button" onclick="downloadResults()">
+                                📥 Download JSON
+                            </button>
+                            <button class="action-button" onclick="viewResults()">
+                                👁️ View Details
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-summary">
+                        <div class="summary-card">
+                            <h4>Text Elements</h4>
+                            <span class="count" id="textCount">0</span>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Tables Found</h4>
+                            <span class="count" id="tableCount">0</span>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Figures Found</h4>
+                            <span class="count" id="figureCount">0</span>
+                        </div>
+                    </div>
+
+                    <div class="results-preview" id="resultsPreview">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Status Messages -->
+                <div class="status-message" id="statusMessage" style="display: none;">
+                    <span class="status-text" id="statusText"></span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // API status checker for standalone page
+        async function checkApiStatus() {
+            const statusElement = document.getElementById('apiStatus');
+            try {
+                const response = await fetch('http://localhost:8000/', { 
+                    method: 'GET',
+                    timeout: 5000 
+                });
+                if (response.ok) {
+                    statusElement.textContent = 'API Online';
+                    statusElement.className = 'api-status online';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                statusElement.textContent = 'API Offline';
+                statusElement.className = 'api-status offline';
+            }
+        }
+
+        // Check API status on load and periodically
+        document.addEventListener('DOMContentLoaded', () => {
+            checkApiStatus();
+            setInterval(checkApiStatus, 30000); // Check every 30 seconds
+        });
+    </script>
+</body>
+</html>

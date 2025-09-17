@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estonian Studies Notes</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">Estonian Studies Notes</h1>
+                <div class="flag-accent"></div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <div class="tab-list">
+                <button class="tab-button" data-tab="overview">Overview</button>
+                <button class="tab-button" data-tab="documents">Documents</button>
+                <button class="tab-button active" data-tab="pdf-converter">PDF Converter</button>
+                <button class="tab-button" data-tab="analysis">Analysis</button>
+                <button class="tab-button" data-tab="research">Research</button>
+                <button class="tab-button" data-tab="timeline">Timeline</button>
+                <button class="tab-button" data-tab="references">References</button>
+                <button class="tab-button" data-tab="settings">Settings</button>
+            </div>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="main-content">
+            <!-- Overview Tab -->
+            <div class="tab-content" id="overview-content">
+                <div class="placeholder-content">
+                    <h2>Overview</h2>
+                    <p>Estonian studies overview content will be added here.</p>
+                </div>
+            </div>
+
+            <!-- Documents Tab -->
+            <div class="tab-content" id="documents-content">
+                <div class="documents-container">
+                    <h2 class="section-title">document viewer</h2>
+                    
+                    <!-- Document Controls -->
+                    <div class="document-controls">
+                        <div class="search-section">
+                            <input type="text" id="documentSearch" placeholder="Search documents..." class="search-input">
+                        </div>
+                        
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>Course:</label>
+                                <select id="documentCourseFilter" class="filter-select">
+                                    <option value="all">All Courses</option>
+                                    <option value="estonian-regional-studies">Estonian Regional Studies</option>
+                                    <option value="introduction-to-estonian-studies">Introduction to Estonian Studies</option>
+                                    <option value="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</option>
+                                    <option value="language-and-society">Language and Society</option>
+                                    <option value="nationalism-transnational-history">Nationalism and Transnational History</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Type:</label>
+                                <select id="documentTypeFilter" class="filter-select">
+                                    <option value="all">All Types</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="docx">DOCX</option>
+                                    <option value="pptx">PPTX</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document List -->
+                    <div class="document-list-container">
+                        <div id="documentList" class="document-list">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <p>Loading documents...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Viewer Modal -->
+                    <div id="documentViewer" class="document-viewer" style="display: none;">
+                        <div class="viewer-overlay" onclick="closeDocumentViewer()"></div>
+                        <div class="viewer-content">
+                            <div class="viewer-header">
+                                <h3 id="viewerTitle">Document Viewer</h3>
+                                <button class="viewer-close" onclick="closeDocumentViewer()">×</button>
+                            </div>
+                            <iframe id="viewerIframe" class="viewer-iframe" src="about:blank"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF Converter Tab -->
+            <div class="tab-content active" id="pdf-converter-content">
+                <div class="pdf-converter-container">
+                    <h2 class="section-title">pdf content extraction</h2>
+                    <p class="section-description">Extract text, tables, and images from PDF documents for analysis</p>
+                    
+                    <!-- PDF Selection Section -->
+                    <div class="pdf-selection-section">
+                        <div class="search-bar">
+                            <input type="text" id="searchInput" placeholder="Search documents..." class="search-input">
+                            <div class="search-icon">🔍</div>
+                        </div>
+                        
+                        <div class="course-filter">
+                            <button class="filter-button active" data-course="all">All Courses</button>
+                            <button class="filter-button" data-course="estonian-regional-studies">Estonian Regional Studies</button>
+                            <button class="filter-button" data-course="introduction-to-estonian-studies">Introduction to Estonian Studies</button>
+                            <button class="filter-button" data-course="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</button>
+                            <button class="filter-button" data-course="language-and-society">Language and Society</button>
+                            <button class="filter-button" data-course="nationalism-transnational-history">Nationalism & Transnational History</button>
+                        </div>
+                        
+                        <div class="pdf-list" id="pdfList">
+                            <!-- PDF items will be populated by JavaScript -->
+                            <div class="loading-message">Loading documents...</div>
+                        </div>
+                        
+                        <div class="selected-pdf" id="selectedPdf" style="display: none;">
+                            <div class="selected-info">
+                                <span class="selected-icon">✓</span>
+                                <div class="selected-details">
+                                    <span class="selected-name" id="selectedName"></span>
+                                    <span class="selected-course" id="selectedCourse"></span>
+                                </div>
+                            </div>
+                            <button class="clear-selection" id="clearSelection">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Extraction Options -->
+                    <div class="options-section">
+                        <h3>Extraction Options</h3>
+                        <div class="options-grid">
+                            <div class="option-group">
+                                <h4>Content Types</h4>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="extractText" checked>
+                                    <span class="checkmark"></span>
+                                    Extract Text
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="extractTables" checked>
+                                    <span class="checkmark"></span>
+                                    Extract Tables
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="extractFigures">
+                                    <span class="checkmark"></span>
+                                    Extract Figures
+                                </label>
+                            </div>
+                            
+                            <div class="option-group">
+                                <h4>Advanced Options</h4>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="includeStyling">
+                                    <span class="checkmark"></span>
+                                    Include Styling Info
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="includeCharBounds">
+                                    <span class="checkmark"></span>
+                                    Character Bounds
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Presets -->
+                    <div class="presets-section">
+                        <h3>Quick Presets</h3>
+                        <div class="preset-buttons">
+                            <button class="preset-button" onclick="setPreset('text')">
+                                <span class="preset-icon">📝</span>
+                                Text Only
+                            </button>
+                            <button class="preset-button" onclick="setPreset('tables')">
+                                <span class="preset-icon">📊</span>
+                                With Tables
+                            </button>
+                            <button class="preset-button" onclick="setPreset('comprehensive')">
+                                <span class="preset-icon">🔍</span>
+                                Comprehensive
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Convert Button -->
+                    <div class="convert-section">
+                        <button class="convert-button" id="convertButton" disabled>
+                            <span class="button-text">Convert PDF</span>
+                            <div class="loading-spinner" style="display: none;"></div>
+                        </button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="results-section" id="resultsSection" style="display: none;">
+                        <h3>Extraction Results</h3>
+                        <div class="results-header">
+                            <div class="result-info">
+                                <span class="extraction-id" id="extractionId"></span>
+                                <span class="processing-time" id="processingTime"></span>
+                            </div>
+                            <div class="result-actions">
+                                <button class="action-button" onclick="downloadResults()">Download JSON</button>
+                                <button class="action-button" onclick="viewResults()">View Details</button>
+                            </div>
+                        </div>
+                        
+                        <div class="results-summary">
+                            <div class="summary-card">
+                                <h4>Text Elements</h4>
+                                <span class="count" id="textCount">0</span>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Tables</h4>
+                                <span class="count" id="tableCount">0</span>
+                            </div>
+                            <div class="summary-card">
+                                <h4>Figures</h4>
+                                <span class="count" id="figureCount">0</span>
+                            </div>
+                        </div>
+
+                        <div class="results-preview" id="resultsPreview">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div class="status-message" id="statusMessage" style="display: none;">
+                        <span class="status-text" id="statusText"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Tab Placeholders -->
+            <div class="tab-content" id="analysis-content">
+                <div class="placeholder-content">
+                    <h2>Analysis</h2>
+                    <p>Analysis tools will be added here.</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="research-content">
+                <div class="placeholder-content">
+                    <h2>Research</h2>
+                    <p>Research management interface will be added here.</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="timeline-content">
+                <div class="placeholder-content">
+                    <h2>Timeline</h2>
+                    <p>Historical timeline will be added here.</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="references-content">
+                <div class="placeholder-content">
+                    <h2>References</h2>
+                    <p>Reference management will be added here.</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="settings-content">
+                <div class="placeholder-content">
+                    <h2>Settings</h2>
+                    <p>Application settings will be added here.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
