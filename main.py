@@ -197,8 +197,33 @@ async def list_pdfs():
                     "pdfs": []
                 }
                 
+                # Get list of existing prettified markdown files for this course
+                read_dir = base_path / course_name / f"READ_{course_name.replace(' ', '_')}"
+                existing_md_files = set()
+                if read_dir.exists():
+                    for md_file in read_dir.glob("*_prettified.md"):
+                        # Extract the original PDF name from the prettified filename
+                        original_name = md_file.stem
+                        
+                        # Remove _prettified suffix first
+                        if original_name.endswith('_prettified'):
+                            original_name = original_name[:-11]  # Remove '_prettified'
+                        
+                        # Remove timestamp pattern if present (e.g., _20250917_203002)
+                        import re
+                        original_name = re.sub(r'_\d{8}_\d{6}$', '', original_name)
+                        
+                        pdf_name = original_name + '.pdf'
+                        existing_md_files.add(pdf_name)
+                        logger.info(f"Found prettified file: {md_file.name} -> maps to PDF: {pdf_name}")
+                
                 for pdf_file in pdf_files:
                     try:
+                        # Check if this PDF already has a corresponding prettified markdown
+                        if pdf_file.name in existing_md_files:
+                            logger.info(f"Skipping {pdf_file.name} - already has prettified markdown")
+                            continue
+                        
                         file_size = pdf_file.stat().st_size
                         courses[course_id]["pdfs"].append({
                             "name": pdf_file.name,

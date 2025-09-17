@@ -203,7 +203,15 @@ class PDFConverter {
 
     async loadAvailablePdfs() {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/pdfs`);
+            // Add cache-busting parameter to ensure fresh data
+            const timestamp = new Date().getTime();
+            const response = await fetch(`${this.apiBaseUrl}/pdfs?_t=${timestamp}`, {
+                cache: 'no-cache',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
             const result = await response.json();
             
             if (result.success) {
