@@ -1298,6 +1298,14 @@ class NotesManager {
                 this.toggleNotesVisibility();
             });
         }
+
+        // Generate quiz button
+        const generateQuizBtn = document.getElementById('generateQuizBtn');
+        if (generateQuizBtn) {
+            generateQuizBtn.addEventListener('click', () => {
+                this.generateQuiz();
+            });
+        }
     }
 
     async loadMarkdownFiles() {
@@ -1319,7 +1327,7 @@ class NotesManager {
         const courseMapping = {
             'estonian-regional-studies': 'Estonian Regional Studies',
             'introduction-to-estonian-studies': 'Introduction to Estonian Studies',
-            'key-concepts-cultural-analysis': 'Key Concepts in Cultural Analysis',
+            'key-concepts-cultural-analysis': 'Key Conceots in Cultural Analysis', // Note: matches the actual folder name with typo
             'language-and-society': 'Language and Society',
             'nationalism-transnational-history': 'Nationalism and Transnational History'
         };
@@ -1356,9 +1364,20 @@ class NotesManager {
         const fileName = filePath.split('/').pop();
         document.getElementById('currentFileName').textContent = fileName;
 
+        console.log('Selected file:', filePath);
+        console.log('Loading markdown content...');
+
         // Load and render the markdown content
         await this.loadMarkdownContent(filePath);
-        document.getElementById('markdownViewer').style.display = 'block';
+        
+        console.log('Showing markdown viewer...');
+        const viewer = document.getElementById('markdownViewer');
+        if (viewer) {
+            viewer.style.display = 'block';
+            console.log('Markdown viewer is now visible');
+        } else {
+            console.error('Markdown viewer element not found!');
+        }
     }
 
     async loadMarkdownContent(filePath) {
@@ -1550,6 +1569,51 @@ class NotesManager {
         } catch (error) {
             console.error('Error adding note:', error);
             alert('Error adding note: ' + error.message);
+        }
+    }
+
+    async generateQuiz() {
+        if (!this.currentFile) {
+            alert('Please select a file first');
+            return;
+        }
+
+        if (!confirm('Generate a reading quiz summary from all your notes in this document? This will append a grey quiz note to the end of the file.')) {
+            return;
+        }
+
+        try {
+            // Show loading state
+            const generateBtn = document.getElementById('generateQuizBtn');
+            const originalText = generateBtn.textContent;
+            generateBtn.textContent = '⏳ Generating...';
+            generateBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file_path', this.currentFile);
+
+            const response = await fetch(`${this.apiBaseUrl}/notes/generate-quiz`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`Quiz generated successfully! Used ${result.notes_used} notes and ${result.keywords.length} keywords.`);
+                // Refresh the markdown content to show the new quiz
+                await this.loadMarkdownContent(this.currentFile);
+            } else {
+                alert('Failed to generate quiz: ' + (result.detail || result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error generating quiz:', error);
+            alert('Error generating quiz: ' + error.message);
+        } finally {
+            // Restore button state
+            const generateBtn = document.getElementById('generateQuizBtn');
+            generateBtn.textContent = originalText;
+            generateBtn.disabled = false;
         }
     }
 

@@ -15,6 +15,7 @@ from config import validate_config, PDF_SERVICES_CLIENT_ID, PDF_SERVICES_CLIENT_
 from ollama_converter import OllamaConverter
 from gpt_converter import MDPrettifier
 from note_taker import NoteTaker
+from quiz_generator import QuizGenerator
 
 # Validate configuration
 validate_config()
@@ -867,6 +868,7 @@ async def extract_comprehensive(file: UploadFile = File(...)):
 
 # Note-taking endpoints
 note_taker = NoteTaker()
+quiz_generator = QuizGenerator()
 
 @app.get("/notes/files")
 async def list_markdown_files():
@@ -1023,6 +1025,50 @@ async def get_file_content(file_path: str):
     except Exception as e:
         logger.error(f"Error getting file content: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get file content: {str(e)}")
+
+@app.post("/notes/generate-quiz")
+async def generate_quiz(file_path: str = Form(...)):
+    """Generate a reading quiz from notes in a markdown file and append it to the file"""
+    try:
+        from pathlib import Path
+        # Normalize path separators for Windows
+        normalized_path = file_path.replace('/', '\\') if os.name == 'nt' else file_path
+        full_path = Path(normalized_path)
+        
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Markdown file not found")
+        
+        # Generate the quiz
+        quiz_result = quiz_generator.create_quiz_for_document(str(full_path))
+        
+        if not quiz_result['success']:
+            raise HTTPException(status_code=400, detail=quiz_result['error'])
+        
+        # Create the quiz note using the note_taker
+        quiz_html = quiz_result['quiz_content']
+        
+        # Add the quiz as a special grey note at the end of the document
+        success = note_taker.add_note_to_file(
+            str(full_path),
+            "___APPEND_TO_END___",  # Special marker to append to end
+            quiz_html,
+            "quiz",
+            "gray"
+        )
+        
+        if success:
+            return {
+                "success": True, 
+                "message": f"Reading quiz generated and added to {full_path.name}",
+                "notes_used": quiz_result['notes_count'],
+                "keywords": quiz_result['keywords']
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to add quiz to file")
+            
+    except Exception as e:
+        logger.error(f"Error generating quiz: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate quiz: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

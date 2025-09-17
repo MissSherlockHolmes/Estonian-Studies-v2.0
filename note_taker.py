@@ -151,10 +151,14 @@ class NoteTaker:
             content = f.read()
         
         # Find insertion point
-        if search_term.strip() == '___APPEND_TO_END___' or not search_term.strip():
-            # Append to end of document
+        if search_term.strip() == '___APPEND_TO_END___':
+            # Special marker for quiz notes - append to very end of document
             insert_pos = len(content)
-            print(f"📍 Appending note to end of document at position: {insert_pos}")
+            print(f"📍 Appending quiz to end of document at position: {insert_pos}")
+        elif not search_term.strip():
+            # Empty search term - append to end
+            insert_pos = len(content)
+            print(f"📍 Empty search term - appending to end at position: {insert_pos}")
         else:
             # Normal note placement - find the search term location
             insert_pos = self.find_note_location(content, search_term)
