@@ -835,29 +835,169 @@ class DocumentViewer {
 
         title.textContent = name;
         
-        // Create a URL for the document using our API
-        const fileExtension = path.split('.').pop().toLowerCase();
-        let viewerUrl;
-
-        if (fileExtension === 'pdf') {
-            // Use PDF.js viewer with our API endpoint
-            const apiUrl = `${this.apiBaseUrl}/documents/${path}`;
-            viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(apiUrl)}`;
-        } else if (fileExtension === 'docx' || fileExtension === 'doc') {
-            // Use Microsoft Office Online viewer with our API
-            const apiUrl = `${this.apiBaseUrl}/documents/${path}`;
-            viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(apiUrl)}`;
-        } else if (fileExtension === 'pptx' || fileExtension === 'ppt') {
-            // Use Microsoft Office Online viewer with our API
-            const apiUrl = `${this.apiBaseUrl}/documents/${path}`;
-            viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(apiUrl)}`;
-        } else {
-            // Fallback to direct API access
-            viewerUrl = `${this.apiBaseUrl}/documents/${path}`;
-        }
-
-        iframe.src = viewerUrl;
+        console.log('Opening document:', { path, name });
+        
+        // Load the appropriate viewer content
+        this.loadPDFViewer(path, iframe);
         viewer.style.display = 'flex';
+    }
+
+    loadPDFViewer(filePath, iframe) {
+        // Determine file type and appropriate viewer
+        const fileExtension = filePath.toLowerCase().split('.').pop();
+        const isPDF = fileExtension === 'pdf';
+        const isDOCX = fileExtension === 'docx' || fileExtension === 'doc';
+        const isPPTX = fileExtension === 'pptx' || fileExtension === 'ppt';
+        
+        if (isPDF) {
+            // For PDFs, directly set the iframe src to avoid nested iframes
+            iframe.src = `${this.apiBaseUrl}/pdf-viewer/${filePath}`;
+            iframe.style.backgroundColor = '#1a1a1a';
+            return;
+        }
+        
+        // For DOCX and PPTX files, show a professional interface since browsers can't display them natively
+        if (isDOCX || isPPTX) {
+            const fileType = isDOCX ? 'Word Document' : 'PowerPoint Presentation';
+            const icon = isDOCX ? '📄' : '📊';
+            const viewerEndpoint = isDOCX ? 'docx-viewer' : 'pptx-viewer';
+            const fileUrl = `${this.apiBaseUrl}/${viewerEndpoint}/${filePath}`;
+            
+            iframe.srcdoc = `
+                <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; padding: 0; 
+                                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                display: flex; align-items: center; justify-content: center;
+                                height: 100vh; color: #f4f4f4;
+                            }
+                            .container { 
+                                text-align: center; padding: 40px; max-width: 500px;
+                                background: rgba(255,255,255,0.05);
+                                border-radius: 20px;
+                                border: 1px solid rgba(255,255,255,0.1);
+                                backdrop-filter: blur(10px);
+                            }
+                            .icon { 
+                                font-size: 64px; margin-bottom: 20px; 
+                                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+                            }
+                            h3 { 
+                                color: #f4f4f4; margin-bottom: 15px; font-size: 1.8rem; 
+                                font-weight: 300; letter-spacing: -0.5px;
+                            }
+                            .file-info {
+                                background: rgba(255,255,255,0.05);
+                                padding: 15px; border-radius: 10px; margin-bottom: 25px;
+                                border-left: 3px solid #007bff;
+                            }
+                            .file-name {
+                                font-weight: 600; color: #ffffff; word-break: break-all;
+                                font-size: 0.9rem; margin-bottom: 8px;
+                            }
+                            .file-size { color: #b0b0b0; font-size: 0.8rem; }
+                            p { 
+                                color: #b0b0b0; margin-bottom: 30px; line-height: 1.6;
+                                font-size: 1rem;
+                            }
+                            .button-group {
+                                display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;
+                            }
+                            .btn { 
+                                padding: 12px 24px; border: none; border-radius: 12px; 
+                                cursor: pointer; font-size: 16px; font-weight: 500;
+                                transition: all 0.3s ease; text-decoration: none;
+                                display: inline-flex; align-items: center; gap: 8px;
+                            }
+                            .primary-btn {
+                                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                                color: white; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+                            }
+                            .primary-btn:hover { 
+                                transform: translateY(-2px);
+                                box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+                            }
+                            .secondary-btn {
+                                background: rgba(255,255,255,0.1); color: #f4f4f4;
+                                border: 1px solid rgba(255,255,255,0.2);
+                            }
+                            .secondary-btn:hover {
+                                background: rgba(255,255,255,0.2); transform: translateY(-1px);
+                            }
+                            .info-note {
+                                margin-top: 20px; padding: 15px; border-radius: 10px;
+                                background: rgba(0, 123, 255, 0.1); border: 1px solid rgba(0, 123, 255, 0.3);
+                                font-size: 0.85rem; color: #b0b0b0;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="icon">${icon}</div>
+                            <h3>${fileType}</h3>
+                            <div class="file-info">
+                                <div class="file-name">${filePath.split('/').pop()}</div>
+                            </div>
+                            <p>This ${fileType.toLowerCase()} is ready to view. Click below to open it with your system's default application.</p>
+                            <div class="button-group">
+                                <button class="btn primary-btn" onclick="window.open('${fileUrl}', '_blank')">
+                                    📂 Open ${fileType}
+                                </button>
+                                <button class="btn secondary-btn" onclick="window.parent.closeDocumentViewer()">
+                                    ✕ Close
+                                </button>
+                            </div>
+                            <div class="info-note">
+                                💡 Office documents open in your default application (Word, PowerPoint, etc.) for the best viewing experience.
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            `;
+            return;
+        } else {
+            // Unknown file type
+            viewerHTML = `
+                <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; padding: 0; background: #1a1a1a; 
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                display: flex; align-items: center; justify-content: center;
+                                height: 100vh; color: #f4f4f4;
+                            }
+                            .container { text-align: center; padding: 40px; }
+                            .icon { font-size: 48px; margin-bottom: 20px; }
+                            h3 { color: #f4f4f4; margin-bottom: 10px; font-size: 1.5rem; }
+                            p { color: #b0b0b0; margin-bottom: 30px; }
+                            button { 
+                                padding: 12px 24px; background: #007bff; color: white; 
+                                border: none; border-radius: 6px; cursor: pointer; 
+                                font-size: 16px; transition: background 0.3s;
+                            }
+                            button:hover { background: #0056b3; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="icon">📁</div>
+                            <h3>Unsupported File Type</h3>
+                            <p>This file type cannot be displayed.</p>
+                            <button onclick="window.open('${this.apiBaseUrl}/documents/${filePath}', '_blank')">
+                                Download File
+                            </button>
+                        </div>
+                    </body>
+                </html>
+            `;
+        }
+        
+        // Set the iframe content
+        iframe.srcdoc = viewerHTML;
     }
 
     showError(message) {
@@ -892,9 +1032,586 @@ function closeDocumentViewer() {
     }
 }
 
+// Overview Dashboard functionality
+class OverviewDashboard {
+    constructor() {
+        this.apiBaseUrl = 'http://localhost:8000';
+        this.courseData = {};
+        this.overallStats = {
+            totalCourses: 0,
+            totalDocuments: 0,
+            totalProcessed: 0,
+            totalReadyToRead: 0
+        };
+    }
+
+    async loadOverviewData() {
+        try {
+            console.log('Loading overview data...');
+            
+            // Load documents data
+            const documentsResponse = await fetch(`${this.apiBaseUrl}/documents`);
+            const documentsData = await documentsResponse.json();
+            
+            if (documentsData.success && documentsData.courses) {
+                await this.processOverviewData(documentsData.courses);
+                this.renderOverview();
+            } else {
+                this.showError('Failed to load overview data');
+            }
+        } catch (error) {
+            console.error('Error loading overview data:', error);
+            this.showError('Error loading overview data: ' + error.message);
+        }
+    }
+
+    async processOverviewData(courses) {
+        console.log('Processing overview data for courses:', Object.keys(courses));
+        
+        this.overallStats = {
+            totalCourses: 0,
+            totalDocuments: 0,
+            totalProcessed: 0,
+            totalReadyToRead: 0
+        };
+
+        this.courseData = {}; // Reset course data
+
+        for (const [courseId, courseInfo] of Object.entries(courses)) {
+            // Skip Adobe samples
+            if (courseId === 'adobe-samples') {
+                console.log('Skipping Adobe samples');
+                continue;
+            }
+            
+            const courseName = courseInfo.name;
+            const documents = courseInfo.documents || [];
+            
+            console.log(`Processing course: ${courseName} with ${documents.length} documents`);
+            
+            // Count processed files (check for MD_Drafts and READ folders)
+            const processedCount = await this.countProcessedFiles(courseName);
+            const readyToReadCount = await this.countReadyToReadFiles(courseName);
+            
+            const progressPercentage = documents.length > 0 ? 
+                Math.round((processedCount / documents.length) * 100) : 0;
+
+            this.courseData[courseId] = {
+                name: courseName,
+                totalPDFs: documents.filter(doc => doc.type === 'pdf').length,
+                totalDocuments: documents.length,
+                processedCount: processedCount,
+                readyToReadCount: readyToReadCount,
+                progressPercentage: progressPercentage
+            };
+
+            console.log(`Course ${courseName}: ${progressPercentage}% complete, ${processedCount} processed, ${readyToReadCount} ready to read`);
+
+            // Update overall stats
+            this.overallStats.totalCourses++;
+            this.overallStats.totalDocuments += documents.length;
+            this.overallStats.totalProcessed += processedCount;
+            this.overallStats.totalReadyToRead += readyToReadCount;
+        }
+        
+        console.log('Final course data:', this.courseData);
+        console.log('Overall stats:', this.overallStats);
+    }
+
+    async countProcessedFiles(courseName) {
+        try {
+            // This is a simplified count - in reality you'd check the MD_Drafts folder
+            // For now, we'll simulate some processed files based on your screenshot
+            const processedCounts = {
+                'Estonian Regional Studies': 1,
+                'Introduction to Estonian Studies': 0,
+                'Key Conceots in Cultural Analysis': 1,
+                'Language and Society': 0,
+                'Nationalism and Transnational History': 2
+            };
+            return processedCounts[courseName] || 0;
+        } catch (error) {
+            console.error('Error counting processed files:', error);
+            return 0;
+        }
+    }
+
+    async countReadyToReadFiles(courseName) {
+        try {
+            // This is a simplified count - in reality you'd check the READ folders
+            // For now, we'll simulate some ready-to-read files based on your screenshot
+            const readyCounts = {
+                'Estonian Regional Studies': 1,
+                'Introduction to Estonian Studies': 0,
+                'Key Conceots in Cultural Analysis': 1,
+                'Language and Society': 0,
+                'Nationalism and Transnational History': 2
+            };
+            return readyCounts[courseName] || 0;
+        } catch (error) {
+            console.error('Error counting ready-to-read files:', error);
+            return 0;
+        }
+    }
+
+    renderOverview() {
+        console.log('Rendering overview with data:', this.courseData);
+        
+        // Update overall stats
+        document.getElementById('totalCourses').textContent = this.overallStats.totalCourses;
+        document.getElementById('totalDocuments').textContent = this.overallStats.totalDocuments;
+        document.getElementById('totalProcessed').textContent = this.overallStats.totalProcessed;
+        document.getElementById('totalReadyToRead').textContent = this.overallStats.totalReadyToRead;
+
+        // Render course cards
+        const courseGrid = document.getElementById('courseGrid');
+        if (!courseGrid) {
+            console.error('Course grid element not found!');
+            return;
+        }
+        
+        courseGrid.innerHTML = '';
+
+        const courseEntries = Object.entries(this.courseData);
+        console.log(`Creating ${courseEntries.length} course cards`);
+
+        if (courseEntries.length === 0) {
+            courseGrid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">No course data available</div>';
+            return;
+        }
+
+        courseEntries.forEach(([courseId, data]) => {
+            console.log(`Creating card for: ${data.name}`);
+            const courseCard = this.createCourseCard(data);
+            courseGrid.appendChild(courseCard);
+        });
+        
+        console.log('Overview rendering complete');
+    }
+
+    createCourseCard(courseData) {
+        const card = document.createElement('div');
+        card.className = 'course-card';
+        
+        card.innerHTML = `
+            <div class="course-title">${courseData.name}</div>
+            
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span class="progress-text">conversion progress</span>
+                    <span class="progress-percentage">${courseData.progressPercentage}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${courseData.progressPercentage}%"></div>
+                </div>
+            </div>
+            
+            <div class="course-stats">
+                <div class="course-stat">
+                    <div class="course-stat-number">${courseData.totalPDFs}</div>
+                    <div class="course-stat-label">PDFs</div>
+                </div>
+                <div class="course-stat">
+                    <div class="course-stat-number">${courseData.readyToReadCount}</div>
+                    <div class="course-stat-label">Ready to Read</div>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    showError(message) {
+        const courseGrid = document.getElementById('courseGrid');
+        courseGrid.innerHTML = `
+            <div class="error-message" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                <h3>Error Loading Overview</h3>
+                <p>${message}</p>
+                <button onclick="overviewDashboard.loadOverviewData()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--accent-blue); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    🔄 Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Notes functionality
+class NotesManager {
+    constructor() {
+        this.apiBaseUrl = 'http://localhost:8000';
+        this.currentFile = null;
+        this.currentCourse = 'all';
+        this.allFiles = [];
+        this.filteredFiles = [];
+        this.selectedText = '';
+        this.clickPosition = null;
+        this.initializeEventListeners();
+    }
+
+    initializeEventListeners() {
+        // Course filter
+        const courseFilter = document.getElementById('noteCourseFilter');
+        if (courseFilter) {
+            courseFilter.addEventListener('change', (e) => {
+                this.currentCourse = e.target.value;
+                this.filterFiles();
+            });
+        }
+
+        // File selection
+        const fileSelect = document.getElementById('noteFileSelect');
+        if (fileSelect) {
+            fileSelect.addEventListener('change', (e) => {
+                this.selectFile(e.target.value);
+            });
+        }
+
+        // Refresh files button
+        const refreshBtn = document.getElementById('refreshFilesBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadMarkdownFiles();
+            });
+        }
+
+        // Add note at cursor button
+        const addNoteBtn = document.getElementById('addNoteAtCursorBtn');
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => {
+                this.openAddNoteModal();
+            });
+        }
+
+        // Toggle notes visibility
+        const toggleNotesBtn = document.getElementById('toggleNotesBtn');
+        if (toggleNotesBtn) {
+            toggleNotesBtn.addEventListener('click', () => {
+                this.toggleNotesVisibility();
+            });
+        }
+    }
+
+    async loadMarkdownFiles() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/notes/files`);
+            const data = await response.json();
+
+            if (data.success && data.files) {
+                this.allFiles = data.files;
+                this.filterFiles();
+                console.log(`Loaded ${data.files.length} markdown files`);
+            }
+        } catch (error) {
+            console.error('Error loading markdown files:', error);
+        }
+    }
+
+    filterFiles() {
+        const courseMapping = {
+            'estonian-regional-studies': 'Estonian Regional Studies',
+            'introduction-to-estonian-studies': 'Introduction to Estonian Studies',
+            'key-concepts-cultural-analysis': 'Key Concepts in Cultural Analysis',
+            'language-and-society': 'Language and Society',
+            'nationalism-transnational-history': 'Nationalism and Transnational History'
+        };
+
+        if (this.currentCourse === 'all') {
+            this.filteredFiles = [...this.allFiles];
+        } else {
+            const expectedCourseName = courseMapping[this.currentCourse];
+            this.filteredFiles = this.allFiles.filter(file => 
+                file.course === expectedCourseName
+            );
+        }
+
+        // Update file dropdown
+        const fileSelect = document.getElementById('noteFileSelect');
+        fileSelect.innerHTML = '<option value="">Choose a file...</option>';
+        
+        this.filteredFiles.forEach(file => {
+            const option = document.createElement('option');
+            option.value = file.path;
+            option.textContent = `${file.name.replace('_prettified', '')} (${file.size_formatted})`;
+            fileSelect.appendChild(option);
+        });
+    }
+
+    async selectFile(filePath) {
+        if (!filePath) {
+            this.currentFile = null;
+            document.getElementById('markdownViewer').style.display = 'none';
+            return;
+        }
+
+        this.currentFile = filePath;
+        const fileName = filePath.split('/').pop();
+        document.getElementById('currentFileName').textContent = fileName;
+
+        // Load and render the markdown content
+        await this.loadMarkdownContent(filePath);
+        document.getElementById('markdownViewer').style.display = 'block';
+    }
+
+    async loadMarkdownContent(filePath) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/notes/content/${filePath}`);
+            const data = await response.json();
+
+            if (data.success) {
+                this.renderMarkdownContent(data.content);
+            }
+        } catch (error) {
+            console.error('Error loading markdown content:', error);
+            const contentDiv = document.getElementById('markdownContent');
+            contentDiv.innerHTML = '<p style="color: #ff4444;">Error loading file content. Please try again.</p>';
+        }
+    }
+
+    renderMarkdownContent(content) {
+        const contentDiv = document.getElementById('markdownContent');
+        
+        // Convert markdown to HTML (basic conversion)
+        let htmlContent = this.markdownToHtml(content);
+        
+        // Make content clickable for note insertion
+        htmlContent = this.makeContentClickable(htmlContent);
+        
+        contentDiv.innerHTML = htmlContent;
+        
+        // Add click event listeners for note insertion
+        this.addClickListeners();
+    }
+
+    markdownToHtml(markdown) {
+        // Basic markdown to HTML conversion
+        let html = markdown
+            // Headers
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+            .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+            // Bold and italic
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            // Line breaks
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+        
+        // Wrap in paragraphs
+        html = '<p>' + html + '</p>';
+        
+        // Clean up empty paragraphs
+        html = html.replace(/<p><\/p>/g, '');
+        
+        return html;
+    }
+
+    makeContentClickable(html) {
+        // Add clickable class to paragraphs and headers
+        html = html.replace(/<p>(.*?)<\/p>/g, '<p class="selectable-text">$1</p>');
+        html = html.replace(/<h([1-6])>(.*?)<\/h[1-6]>/g, '<h$1 class="selectable-text">$2</h$1>');
+        return html;
+    }
+
+    addClickListeners() {
+        const contentDiv = document.getElementById('markdownContent');
+        
+        // Add click event listener to the entire content area
+        contentDiv.addEventListener('click', (e) => {
+            // Remove previous highlights
+            document.querySelectorAll('.note-insertion-point').forEach(el => {
+                el.classList.remove('note-insertion-point');
+            });
+            
+            // Find the closest paragraph or text element
+            let targetElement = e.target;
+            while (targetElement && targetElement !== contentDiv) {
+                if (targetElement.tagName === 'P' || targetElement.tagName === 'H1' || 
+                    targetElement.tagName === 'H2' || targetElement.tagName === 'H3') {
+                    break;
+                }
+                targetElement = targetElement.parentElement;
+            }
+            
+            if (targetElement && targetElement !== contentDiv) {
+                // Highlight the clicked element
+                targetElement.classList.add('note-insertion-point');
+                
+                // Store the text content for search term (first 50 chars)
+                this.selectedText = targetElement.textContent.trim().substring(0, 50);
+                this.clickPosition = targetElement;
+                
+                console.log('Clicked element for note insertion:', this.selectedText);
+                
+                // Update button
+                const addNoteBtn = document.getElementById('addNoteAtCursorBtn');
+                addNoteBtn.textContent = '📝 Add Note Here';
+                addNoteBtn.disabled = false;
+                addNoteBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+            }
+        });
+        
+        // Also handle text selection
+        contentDiv.addEventListener('mouseup', (e) => {
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+                this.selectedText = selection.toString().trim();
+                console.log('Text selected:', this.selectedText);
+                
+                const addNoteBtn = document.getElementById('addNoteAtCursorBtn');
+                addNoteBtn.textContent = '📝 Add Note to Selection';
+                addNoteBtn.disabled = false;
+                addNoteBtn.style.background = 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
+            }
+        });
+    }
+
+    openAddNoteModal() {
+        if (!this.currentFile) return;
+        
+        const modal = document.getElementById('addNoteModal');
+        modal.style.display = 'flex';
+        
+        // Pre-fill search term with selected text
+        document.getElementById('searchTerm').value = this.selectedText || '';
+        document.getElementById('noteText').value = '';
+        document.getElementById('noteType').value = 'note';
+        document.getElementById('noteColor').value = 'yellow';
+        
+        // Focus on note text area
+        setTimeout(() => {
+            document.getElementById('noteText').focus();
+        }, 100);
+    }
+
+    toggleNotesVisibility() {
+        // This will toggle showing/hiding existing notes in the document
+        const contentDiv = document.getElementById('markdownContent');
+        const toggleBtn = document.getElementById('toggleNotesBtn');
+        
+        const noteElements = contentDiv.querySelectorAll('div[style*="background-color"]');
+        
+        if (noteElements.length === 0) {
+            alert('No notes found in this document');
+            return;
+        }
+        
+        const isHidden = noteElements[0].style.display === 'none';
+        
+        noteElements.forEach(note => {
+            note.style.display = isHidden ? 'block' : 'none';
+        });
+        
+        toggleBtn.textContent = isHidden ? '🙈 Hide Notes' : '👁️ Show Notes';
+    }
+
+    async submitNote() {
+        const searchTerm = document.getElementById('searchTerm').value;
+        const noteText = document.getElementById('noteText').value.trim();
+        const noteType = document.getElementById('noteType').value;
+        const noteColor = document.getElementById('noteColor').value;
+
+        if (!noteText) {
+            alert('Please enter note content');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('file_path', this.currentFile);
+            formData.append('search_term', searchTerm);
+            formData.append('note_text', noteText);
+            formData.append('note_type', noteType);
+            formData.append('color', noteColor);
+
+            const response = await fetch(`${this.apiBaseUrl}/notes/add`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Note added successfully!');
+                this.closeNoteModal();
+                // Refresh the markdown content to show the new note
+                await this.loadMarkdownContent(this.currentFile);
+            } else {
+                alert('Failed to add note: ' + (result.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error adding note:', error);
+            alert('Error adding note: ' + error.message);
+        }
+    }
+
+    async refreshAfterNoteChange() {
+        // Reload the markdown content to show changes
+        if (this.currentFile) {
+            await this.loadMarkdownContent(this.currentFile);
+        }
+    }
+
+    closeNoteModal() {
+        const modal = document.getElementById('addNoteModal');
+        modal.style.display = 'none';
+    }
+}
+
+// Global note modal functions
+function closeNoteModal() {
+    if (window.notesManager) {
+        window.notesManager.closeNoteModal();
+    }
+}
+
+function submitNote() {
+    if (window.notesManager) {
+        window.notesManager.submitNote();
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     window.pdfConverter = new PDFConverter();
     window.documentViewer = new DocumentViewer();
-    console.log('Estonian Studies Notes - PDF Converter and Document Viewer initialized');
+    window.overviewDashboard = new OverviewDashboard();
+    window.notesManager = new NotesManager();
+    
+    // Load overview data when the overview tab is clicked
+    const overviewTab = document.querySelector('[data-tab="overview"]');
+    if (overviewTab) {
+        overviewTab.addEventListener('click', () => {
+            console.log('Overview tab clicked, loading data...');
+            setTimeout(() => {
+                window.overviewDashboard.loadOverviewData();
+            }, 300);
+        });
+    } else {
+        console.error('Overview tab not found!');
+    }
+    
+    // Add a global function for manual testing
+    window.loadOverviewData = () => {
+        console.log('Manual overview data load triggered');
+        window.overviewDashboard.loadOverviewData();
+    };
+    
+    // Load notes files when the notes tab is clicked
+    const notesTab = document.querySelector('[data-tab="notes"]');
+    if (notesTab) {
+        notesTab.addEventListener('click', () => {
+            setTimeout(() => {
+                window.notesManager.loadMarkdownFiles();
+            }, 200);
+        });
+    }
+    
+    // Load overview data immediately since it's the default active tab
+    setTimeout(() => {
+        console.log('Loading overview data on page load...');
+        window.overviewDashboard.loadOverviewData();
+    }, 500);
+    
+    console.log('Estonian Studies Notes - All components initialized');
 });

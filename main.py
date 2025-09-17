@@ -14,12 +14,13 @@ from io import BytesIO
 from config import validate_config, PDF_SERVICES_CLIENT_ID, PDF_SERVICES_CLIENT_SECRET
 from ollama_converter import OllamaConverter
 from gpt_converter import MDPrettifier
+from note_taker import NoteTaker
 
 # Validate configuration
 validate_config()
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks, Form
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -295,9 +296,11 @@ async def list_documents():
                         for file_path in files:
                             try:
                                 file_size = file_path.stat().st_size
+                                # Normalize path separators for URLs
+                                relative_path = str(file_path.relative_to(base_path)).replace('\\', '/')
                                 courses[course_id]["documents"].append({
                                     "name": file_path.name,
-                                    "path": str(file_path.relative_to(base_path)),
+                                    "path": relative_path,
                                     "size": file_size,
                                     "size_formatted": format_file_size(file_size),
                                     "type": doc_type,
@@ -320,9 +323,11 @@ async def list_documents():
                 for pdf_file in pdf_files:
                     try:
                         file_size = pdf_file.stat().st_size
+                        # Normalize path separators for URLs
+                        relative_path = str(pdf_file.relative_to(base_path)).replace('\\', '/')
                         courses["adobe-samples"]["documents"].append({
                             "name": pdf_file.name,
-                            "path": str(pdf_file.relative_to(base_path)),
+                            "path": relative_path,
                             "size": file_size,
                             "size_formatted": format_file_size(file_size),
                             "type": "pdf",
@@ -342,24 +347,217 @@ async def list_documents():
 async def serve_document(file_path: str):
     """Serve a document file"""
     from pathlib import Path
+    import urllib.parse
     
-    # Security check - ensure the file is within allowed directories
-    full_path = Path(file_path)
+    # Decode URL-encoded path and normalize path separators for Windows
+    decoded_path = urllib.parse.unquote(file_path)
+    # Convert forward slashes back to backslashes for Windows file system
+    normalized_path = decoded_path.replace('/', '\\') if os.name == 'nt' else decoded_path
+    full_path = Path(normalized_path)
     
-    # Check if file exists and is within allowed directories
+    logger.info(f"Serving document: original_path='{file_path}', decoded='{decoded_path}', normalized='{normalized_path}', full_path='{full_path}'")
+    
+    # Check if file exists
     if not full_path.exists():
-        raise HTTPException(status_code=404, detail="File not found")
+        logger.error(f"File not found: {full_path}")
+        raise HTTPException(status_code=404, detail=f"File not found: {full_path}")
     
     # Check if it's a supported document type
     allowed_extensions = {'.pdf', '.docx', '.doc', '.pptx', '.ppt'}
     if full_path.suffix.lower() not in allowed_extensions:
         raise HTTPException(status_code=400, detail="Unsupported file type")
     
-    # Return the file
-    return FileResponse(
-        path=str(full_path),
-        filename=full_path.name,
-        media_type='application/octet-stream'
+    # Determine appropriate media type
+    media_type_mapping = {
+        '.pdf': 'application/pdf',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.doc': 'application/msword',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.ppt': 'application/vnd.ms-powerpoint'
+    }
+    
+    media_type = media_type_mapping.get(full_path.suffix.lower(), 'application/octet-stream')
+    
+    # For PDFs, use streaming response to force inline display
+    if full_path.suffix.lower() == '.pdf':
+        from fastapi.responses import StreamingResponse
+        import io
+        
+        def generate():
+            with open(full_path, 'rb') as f:
+                while True:
+                    chunk = f.read(8192)
+                    if not chunk:
+                        break
+                    yield chunk
+        
+        return StreamingResponse(
+            generate(),
+            media_type='application/pdf',
+            headers={
+                'Content-Disposition': 'inline',
+                'Cache-Control': 'no-cache',
+                'X-Content-Type-Options': 'nosniff'
+            }
+        )
+    else:
+        # For other files (DOCX, PPTX), return with headers optimized for online viewers
+        response = FileResponse(
+            path=str(full_path),
+            filename=full_path.name,
+            media_type=media_type
+        )
+        
+        # Headers optimized for online document viewers
+        response.headers["Content-Disposition"] = f'inline; filename="{full_path.name}"'
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Origin"
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        
+        return response
+
+@app.get("/docx-viewer/{file_path:path}")
+async def docx_viewer(file_path: str):
+    """Serve DOCX files specifically for inline viewing"""
+    from pathlib import Path
+    import urllib.parse
+    from fastapi.responses import StreamingResponse
+    
+    # Decode URL-encoded path and normalize path separators for Windows
+    decoded_path = urllib.parse.unquote(file_path)
+    normalized_path = decoded_path.replace('/', '\\') if os.name == 'nt' else decoded_path
+    full_path = Path(normalized_path)
+    
+    logger.info(f"DOCX viewer request: {full_path}")
+    
+    # Check if file exists and is a DOCX
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="DOCX file not found")
+    
+    if full_path.suffix.lower() not in ['.docx', '.doc']:
+        raise HTTPException(status_code=400, detail="File is not a DOCX document")
+    
+    # Stream the DOCX with headers that allow inline viewing
+    def generate():
+        with open(full_path, 'rb') as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                yield chunk
+    
+    return StreamingResponse(
+        generate(),
+        media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={
+            'Content-Disposition': 'inline',
+            'Cache-Control': 'no-cache',
+            'X-Content-Type-Options': 'nosniff',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    )
+
+@app.get("/pptx-viewer/{file_path:path}")
+async def pptx_viewer(file_path: str):
+    """Serve PPTX files specifically for inline viewing"""
+    from pathlib import Path
+    import urllib.parse
+    from fastapi.responses import StreamingResponse
+    
+    # Decode URL-encoded path and normalize path separators for Windows
+    decoded_path = urllib.parse.unquote(file_path)
+    normalized_path = decoded_path.replace('/', '\\') if os.name == 'nt' else decoded_path
+    full_path = Path(normalized_path)
+    
+    logger.info(f"PPTX viewer request: {full_path}")
+    
+    # Check if file exists and is a PPTX
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="PPTX file not found")
+    
+    if full_path.suffix.lower() not in ['.pptx', '.ppt']:
+        raise HTTPException(status_code=400, detail="File is not a PPTX presentation")
+    
+    # Stream the PPTX with headers that allow inline viewing
+    def generate():
+        with open(full_path, 'rb') as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                yield chunk
+    
+    return StreamingResponse(
+        generate(),
+        media_type='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        headers={
+            'Content-Disposition': 'inline',
+            'Cache-Control': 'no-cache',
+            'X-Content-Type-Options': 'nosniff',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    )
+
+@app.options("/documents/{file_path:path}")
+async def documents_options(file_path: str):
+    """Handle CORS preflight requests for document serving"""
+    from fastapi.responses import Response
+    
+    response = Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Origin, Authorization"
+    response.headers["Access-Control-Max-Age"] = "86400"
+    
+    return response
+
+@app.get("/pdf-viewer/{file_path:path}")
+async def pdf_viewer(file_path: str):
+    """Serve PDF files specifically for inline viewing (no download)"""
+    from pathlib import Path
+    import urllib.parse
+    from fastapi.responses import StreamingResponse
+    
+    # Decode URL-encoded path and normalize path separators for Windows
+    decoded_path = urllib.parse.unquote(file_path)
+    normalized_path = decoded_path.replace('/', '\\') if os.name == 'nt' else decoded_path
+    full_path = Path(normalized_path)
+    
+    logger.info(f"PDF viewer request: {full_path}")
+    
+    # Check if file exists and is a PDF
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="PDF file not found")
+    
+    if full_path.suffix.lower() != '.pdf':
+        raise HTTPException(status_code=400, detail="File is not a PDF")
+    
+    # Stream the PDF with headers that prevent download
+    def generate():
+        with open(full_path, 'rb') as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                yield chunk
+    
+    return StreamingResponse(
+        generate(),
+        media_type='application/pdf',
+        headers={
+            'Content-Disposition': 'inline',
+            'Content-Type': 'application/pdf',
+            'Cache-Control': 'no-cache',
+            'X-Content-Type-Options': 'nosniff',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
     )
 
 def format_file_size(size_bytes):
@@ -641,6 +839,165 @@ async def extract_comprehensive(file: UploadFile = File(...)):
         include_styling=True,
         include_char_bounds=True
     )
+
+# Note-taking endpoints
+note_taker = NoteTaker()
+
+@app.get("/notes/files")
+async def list_markdown_files():
+    """Get list of all markdown files available for note-taking"""
+    from pathlib import Path
+    import glob
+    
+    base_path = Path(".")
+    markdown_files = []
+    
+    # Search in READ_ directories for prettified markdown files
+    read_dirs = list(base_path.glob("*/READ_*"))
+    
+    for read_dir in read_dirs:
+        if read_dir.is_dir():
+            course_name = read_dir.parent.name
+            md_files = list(read_dir.glob("*.md"))
+            
+            for md_file in md_files:
+                try:
+                    file_size = md_file.stat().st_size
+                    markdown_files.append({
+                        "name": md_file.name,
+                        "path": str(md_file.relative_to(base_path)).replace('\\', '/'),
+                        "course": course_name,
+                        "size": file_size,
+                        "size_formatted": format_file_size(file_size),
+                        "modified": md_file.stat().st_mtime
+                    })
+                except Exception as e:
+                    logger.warning(f"Error processing markdown file {md_file}: {e}")
+                    continue
+    
+    # Sort by modification time (newest first)
+    markdown_files.sort(key=lambda x: x['modified'], reverse=True)
+    
+    return {"success": True, "files": markdown_files}
+
+@app.post("/notes/add")
+async def add_note(
+    file_path: str = Form(...),
+    search_term: str = Form(""),
+    note_text: str = Form(...),
+    note_type: str = Form("note"),
+    color: str = Form("yellow")
+):
+    """Add a note to a markdown file"""
+    try:
+        from pathlib import Path
+        # Normalize path separators for Windows
+        normalized_path = file_path.replace('/', '\\') if os.name == 'nt' else file_path
+        full_path = Path(normalized_path)
+        
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Markdown file not found")
+        
+        success = note_taker.add_note_to_file(
+            str(full_path), 
+            search_term, 
+            note_text, 
+            note_type, 
+            color
+        )
+        
+        if success:
+            return {"success": True, "message": "Note added successfully"}
+        else:
+            raise HTTPException(status_code=400, detail="Failed to add note")
+            
+    except Exception as e:
+        logger.error(f"Error adding note: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to add note: {str(e)}")
+
+@app.get("/notes/list/{file_path:path}")
+async def list_notes(file_path: str):
+    """List all notes in a markdown file"""
+    try:
+        from pathlib import Path
+        # Normalize path separators for Windows
+        normalized_path = file_path.replace('/', '\\') if os.name == 'nt' else file_path
+        full_path = Path(normalized_path)
+        
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Markdown file not found")
+        
+        notes = note_taker.list_notes_in_file(str(full_path))
+        
+        return {
+            "success": True, 
+            "file": file_path,
+            "notes": [
+                {
+                    "index": i + 1,
+                    "type": note[0],
+                    "timestamp": note[1], 
+                    "text": note[2]
+                } 
+                for i, note in enumerate(notes)
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing notes: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list notes: {str(e)}")
+
+@app.delete("/notes/delete")
+async def delete_note(
+    file_path: str = Form(...),
+    note_index: int = Form(...)
+):
+    """Delete a note from a markdown file"""
+    try:
+        from pathlib import Path
+        # Normalize path separators for Windows
+        normalized_path = file_path.replace('/', '\\') if os.name == 'nt' else file_path
+        full_path = Path(normalized_path)
+        
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Markdown file not found")
+        
+        success = note_taker.delete_note_from_file(str(full_path), note_index)
+        
+        if success:
+            return {"success": True, "message": "Note deleted successfully"}
+        else:
+            raise HTTPException(status_code=400, detail="Failed to delete note")
+            
+    except Exception as e:
+        logger.error(f"Error deleting note: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
+
+@app.get("/notes/content/{file_path:path}")
+async def get_file_content(file_path: str):
+    """Get the content of a markdown file for preview"""
+    try:
+        from pathlib import Path
+        # Normalize path separators for Windows
+        normalized_path = file_path.replace('/', '\\') if os.name == 'nt' else file_path
+        full_path = Path(normalized_path)
+        
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="Markdown file not found")
+        
+        with open(full_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        return {
+            "success": True,
+            "file": file_path,
+            "content": content,
+            "full_length": len(content)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting file content: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get file content: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

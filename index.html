@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estonian Studies Notes</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Estonian Studies Notes</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    </head>
 <body>
     <div class="container">
         <!-- Header -->
@@ -19,10 +20,10 @@
         <!-- Navigation Tabs -->
         <nav class="nav-tabs">
             <div class="tab-list">
-                <button class="tab-button" data-tab="overview">Overview</button>
+                <button class="tab-button active" data-tab="overview">Overview</button>
                 <button class="tab-button" data-tab="documents">Documents</button>
-                <button class="tab-button active" data-tab="pdf-converter">PDF Converter</button>
-                <button class="tab-button" data-tab="analysis">Analysis</button>
+                <button class="tab-button" data-tab="pdf-converter">PDF Converter</button>
+                <button class="tab-button" data-tab="notes">Notes</button>
                 <button class="tab-button" data-tab="research">Research</button>
                 <button class="tab-button" data-tab="timeline">Timeline</button>
                 <button class="tab-button" data-tab="references">References</button>
@@ -33,10 +34,50 @@
         <!-- Tab Content -->
         <main class="main-content">
             <!-- Overview Tab -->
-            <div class="tab-content" id="overview-content">
-                <div class="placeholder-content">
-                    <h2>Overview</h2>
-                    <p>Estonian studies overview content will be added here.</p>
+            <div class="tab-content active" id="overview-content">
+                <div class="overview-container">
+                    <h2 class="section-title">estonian studies overview</h2>
+                    
+                    <div class="overview-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalCourses">-</div>
+                                <div class="stat-label">Total Courses</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📄</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalDocuments">-</div>
+                                <div class="stat-label">Total Documents</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalProcessed">-</div>
+                                <div class="stat-label">Processed</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📖</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalReadyToRead">-</div>
+                                <div class="stat-label">Ready to Read</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="course-grid" id="courseGrid">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Loading course data...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -90,10 +131,10 @@
                     <div id="documentViewer" class="document-viewer" style="display: none;">
                         <div class="viewer-overlay" onclick="closeDocumentViewer()"></div>
                         <div class="viewer-content">
-                            <div class="viewer-header">
-                                <h3 id="viewerTitle">Document Viewer</h3>
-                                <button class="viewer-close" onclick="closeDocumentViewer()">×</button>
-                            </div>
+                        <div class="viewer-header">
+                            <h3 id="viewerTitle">Document Viewer</h3>
+                            <button class="viewer-close" onclick="closeDocumentViewer()">×</button>
+                        </div>
                             <iframe id="viewerIframe" class="viewer-iframe" src="about:blank"></iframe>
                         </div>
                     </div>
@@ -101,7 +142,7 @@
             </div>
 
             <!-- PDF Converter Tab -->
-            <div class="tab-content active" id="pdf-converter-content">
+            <div class="tab-content" id="pdf-converter-content">
                 <div class="pdf-converter-container">
                     <h2 class="section-title">pdf content extraction</h2>
                     <p class="section-description">Extract text, tables, and images from PDF documents for analysis</p>
@@ -247,10 +288,107 @@
             </div>
 
             <!-- Other Tab Placeholders -->
-            <div class="tab-content" id="analysis-content">
-                <div class="placeholder-content">
-                    <h2>Analysis</h2>
-                    <p>Analysis tools will be added here.</p>
+            <!-- Notes Tab -->
+            <div class="tab-content" id="notes-content">
+                <div class="notes-container">
+                    <h2 class="section-title">note taking</h2>
+                    
+                    <!-- Controls -->
+                    <div class="notes-controls">
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>Course:</label>
+                                <select id="noteCourseFilter" class="filter-select">
+                                    <option value="all">All Courses</option>
+                                    <option value="estonian-regional-studies">Estonian Regional Studies</option>
+                                    <option value="introduction-to-estonian-studies">Introduction to Estonian Studies</option>
+                                    <option value="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</option>
+                                    <option value="language-and-society">Language and Society</option>
+                                    <option value="nationalism-transnational-history">Nationalism and Transnational History</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>File:</label>
+                                <select id="noteFileSelect" class="filter-select">
+                                    <option value="">Choose a file...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <button id="refreshFilesBtn" class="action-button">🔄 Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Viewer with Note Insertion -->
+                    <div id="markdownViewer" class="markdown-viewer" style="display: none;">
+                        <div class="viewer-header">
+                            <h3 id="currentFileName">Document Viewer</h3>
+                            <div class="viewer-actions">
+                                <button id="toggleNotesBtn" class="action-button">👁️ Show Notes</button>
+                                <button id="addNoteAtCursorBtn" class="action-button primary">📝 Add Note Here</button>
+                            </div>
+                        </div>
+                        <div id="markdownContent" class="markdown-content"></div>
+                    </div>
+                </div>
+                
+                <!-- Add Note Modal -->
+                <div id="addNoteModal" class="note-modal" style="display: none;">
+                    <div class="modal-overlay" onclick="closeNoteModal()"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add Note</h3>
+                            <button class="modal-close" onclick="closeNoteModal()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="searchTerm">Search Term (to find insertion point):</label>
+                                <input type="text" id="searchTerm" placeholder="Enter text to search for..." class="form-input">
+                                <small>Leave empty to append to end of document</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="noteText">Note Content:</label>
+                                <textarea id="noteText" placeholder="Enter your note..." class="form-textarea" rows="4"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="noteType">Note Type:</label>
+                                    <select id="noteType" class="form-select">
+                                        <option value="note">📝 Note</option>
+                                        <option value="important">🚨 Important</option>
+                                        <option value="question">❓ Question</option>
+                                        <option value="idea">💡 Idea</option>
+                                        <option value="quote">💬 Quote</option>
+                                        <option value="highlight">✨ Highlight</option>
+                                        <option value="warning">⚠️ Warning</option>
+                                        <option value="info">ℹ️ Info</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="noteColor">Color:</label>
+                                    <select id="noteColor" class="form-select">
+                                        <option value="yellow">🟡 Yellow</option>
+                                        <option value="red">🔴 Red</option>
+                                        <option value="blue">🔵 Blue</option>
+                                        <option value="green">🟢 Green</option>
+                                        <option value="orange">🟠 Orange</option>
+                                        <option value="purple">🟣 Purple</option>
+                                        <option value="pink">🩷 Pink</option>
+                                        <option value="gray">⚫ Gray</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closeNoteModal()" class="action-button secondary">Cancel</button>
+                            <button onclick="submitNote()" class="action-button primary">💾 Save Note</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

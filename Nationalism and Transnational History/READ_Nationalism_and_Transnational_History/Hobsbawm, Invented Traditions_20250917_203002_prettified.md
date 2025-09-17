@@ -1,5 +1,12 @@
 # Contributors
 
+<div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 22:40):</strong><br>
+    Test Note
+</div>
+
+
+
 - I. David Cannadine is Professor of History at Columbia University. His books include *Lords and Landlords: The Aristocracy and the Towns, 1774-1967* (1980) and *The Decline and Fall of the British Aristocracy* (1990).
 
 - Bernard S. Cohn is Professor of Anthropology at the University of Chicago. He is the author of many articles on the interactions of history and anthropology and on the study of Indian society.
