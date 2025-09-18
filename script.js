@@ -1685,5 +1685,375 @@ document.addEventListener('DOMContentLoaded', () => {
         window.overviewDashboard.loadOverviewData();
     }, 500);
     
+    // Initialize Forum Manager
+    window.forumManager = new ForumManager();
+    
+    // Load forum posts when the research tab is clicked
+    const researchTab = document.querySelector('[data-tab="research"]');
+    if (researchTab) {
+        researchTab.addEventListener('click', () => {
+            console.log('Research tab clicked, loading forum posts...');
+            setTimeout(() => {
+                window.forumManager.loadForumPosts();
+            }, 200);
+        });
+    } else {
+        console.error('Research tab not found!');
+    }
+    
     console.log('Estonian Studies Notes - All components initialized');
 });
+
+// Forum Posts Manager
+class ForumManager {
+    constructor() {
+        this.apiBaseUrl = 'http://localhost:8000';
+        this.posts = [];
+        this.currentPost = null;
+        this.isEditing = false;
+        
+        this.initializeEventListeners();
+    }
+    
+    initializeEventListeners() {
+        console.log('Initializing ForumManager event listeners...');
+        
+        // Course filter
+        const courseFilter = document.getElementById('forumCourseFilter');
+        if (courseFilter) {
+            console.log('Course filter found, adding event listener');
+            courseFilter.addEventListener('change', () => {
+                this.filterPosts();
+            });
+        } else {
+            console.warn('Course filter not found!');
+        }
+        
+        // Sort filter
+        const sortFilter = document.getElementById('forumSortFilter');
+        if (sortFilter) {
+            console.log('Sort filter found, adding event listener');
+            sortFilter.addEventListener('change', () => {
+                this.sortPosts();
+            });
+        } else {
+            console.warn('Sort filter not found!');
+        }
+        
+        // Create post button
+        const createBtn = document.getElementById('createPostBtn');
+        if (createBtn) {
+            console.log('Create post button found, adding event listener');
+            createBtn.addEventListener('click', () => {
+                console.log('Create post button clicked!');
+                this.openCreateModal();
+            });
+        } else {
+            console.warn('Create post button not found!');
+        }
+    }
+    
+    async loadForumPosts() {
+        try {
+            console.log('Loading forum posts...');
+            const response = await fetch(`${this.apiBaseUrl}/forum/posts`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.posts = data.posts || [];
+            console.log(`Loaded ${this.posts.length} forum posts`);
+            
+            this.renderPosts();
+        } catch (error) {
+            console.error('Error loading forum posts:', error);
+            this.showError('Failed to load forum posts. Please try again.');
+        }
+    }
+    
+    renderPosts() {
+        const container = document.getElementById('forumPostsList');
+        if (!container) return;
+        
+        if (this.posts.length === 0) {
+            container.innerHTML = `
+                <div class="forum-empty-state">
+                    <div class="forum-empty-state-icon">📝</div>
+                    <h3>No forum posts yet</h3>
+                    <p>Create your first post to get started!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const filteredPosts = this.getFilteredPosts();
+        const sortedPosts = this.getSortedPosts(filteredPosts);
+        
+        container.innerHTML = sortedPosts.map(post => this.renderPost(post)).join('');
+        
+        // Add event listeners to action buttons
+        this.addPostActionListeners();
+    }
+    
+    renderPost(post) {
+        const createdDate = new Date(post.created_at).toLocaleDateString();
+        const createdTime = new Date(post.created_at).toLocaleTimeString();
+        const dueDate = post.due_date ? new Date(post.due_date).toLocaleDateString() : null;
+        const isOverdue = dueDate && new Date(post.due_date) < new Date();
+        
+        return `
+            <div class="forum-post" data-post-id="${post.id}">
+                <div class="forum-post-header">
+                    <h3 class="forum-post-title">${this.escapeHtml(post.title)}</h3>
+                    <div class="forum-post-actions">
+                        <button class="action-button secondary" onclick="window.forumManager.editPost(${post.id})" title="Edit Post">
+                            ✏️ Edit
+                        </button>
+                        <button class="action-button danger" onclick="window.forumManager.deletePost(${post.id})" title="Delete Post">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="forum-post-meta">
+                    <div class="forum-post-meta-item">
+                        <span class="forum-post-course">${this.getCourseDisplayName(post.course)}</span>
+                    </div>
+                    <div class="forum-post-meta-item">
+                        <span class="forum-post-priority ${post.priority}">${post.priority.toUpperCase()}</span>
+                    </div>
+                    ${dueDate ? `
+                        <div class="forum-post-meta-item">
+                            <span class="forum-post-due-date ${isOverdue ? 'overdue' : ''}">
+                                ⏰ Due: ${dueDate}
+                            </span>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="forum-post-body">${this.escapeHtml(post.body)}</div>
+                
+                <div class="forum-post-footer">
+                    <div class="forum-post-timestamp">
+                        <span>📅 Created: ${createdDate} at ${createdTime}</span>
+                    </div>
+                    <div class="forum-post-id">#${post.id}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    addPostActionListeners() {
+        // Event listeners are added via onclick attributes in the HTML
+        // This method can be used for additional event handling if needed
+    }
+    
+    getFilteredPosts() {
+        const courseFilter = document.getElementById('forumCourseFilter');
+        const selectedCourse = courseFilter ? courseFilter.value : 'all';
+        
+        if (selectedCourse === 'all') {
+            return this.posts;
+        }
+        
+        return this.posts.filter(post => post.course === selectedCourse);
+    }
+    
+    getSortedPosts(posts) {
+        const sortFilter = document.getElementById('forumSortFilter');
+        const sortBy = sortFilter ? sortFilter.value : 'newest';
+        
+        const sorted = [...posts].sort((a, b) => {
+            switch (sortBy) {
+                case 'newest':
+                    return new Date(b.created_at) - new Date(a.created_at);
+                case 'oldest':
+                    return new Date(a.created_at) - new Date(b.created_at);
+                case 'due-date':
+                    if (!a.due_date && !b.due_date) return 0;
+                    if (!a.due_date) return 1;
+                    if (!b.due_date) return -1;
+                    return new Date(a.due_date) - new Date(b.due_date);
+                case 'title':
+                    return a.title.localeCompare(b.title);
+                default:
+                    return 0;
+            }
+        });
+        
+        return sorted;
+    }
+    
+    filterPosts() {
+        this.renderPosts();
+    }
+    
+    sortPosts() {
+        this.renderPosts();
+    }
+    
+    openCreateModal() {
+        this.isEditing = false;
+        this.currentPost = null;
+        
+        document.getElementById('modalTitle').textContent = 'Create New Post';
+        document.getElementById('savePostBtn').textContent = '💾 Save Post';
+        document.getElementById('postForm').reset();
+        
+        document.getElementById('postModal').style.display = 'flex';
+    }
+    
+    editPost(postId) {
+        const post = this.posts.find(p => p.id === postId);
+        if (!post) return;
+        
+        this.isEditing = true;
+        this.currentPost = post;
+        
+        document.getElementById('modalTitle').textContent = 'Edit Post';
+        document.getElementById('savePostBtn').textContent = '💾 Update Post';
+        
+        // Fill form with post data
+        document.getElementById('postTitle').value = post.title;
+        document.getElementById('postCourse').value = post.course;
+        document.getElementById('postBody').value = post.body;
+        document.getElementById('postPriority').value = post.priority;
+        
+        if (post.due_date) {
+            // Convert to datetime-local format
+            const dueDate = new Date(post.due_date);
+            const localDateTime = new Date(dueDate.getTime() - dueDate.getTimezoneOffset() * 60000);
+            document.getElementById('postDueDate').value = localDateTime.toISOString().slice(0, 16);
+        }
+        
+        document.getElementById('postModal').style.display = 'flex';
+    }
+    
+    async savePost() {
+        const title = document.getElementById('postTitle').value.trim();
+        const course = document.getElementById('postCourse').value;
+        const body = document.getElementById('postBody').value.trim();
+        const priority = document.getElementById('postPriority').value;
+        const dueDate = document.getElementById('postDueDate').value;
+        
+        if (!title || !course || !body) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        const postData = {
+            title,
+            course,
+            body,
+            priority,
+            due_date: dueDate || null
+        };
+        
+        try {
+            let response;
+            if (this.isEditing) {
+                response = await fetch(`${this.apiBaseUrl}/forum/posts/${this.currentPost.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+            } else {
+                response = await fetch(`${this.apiBaseUrl}/forum/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+            }
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('Post saved successfully:', result);
+            
+            this.closePostModal();
+            this.loadForumPosts(); // Reload posts
+            
+        } catch (error) {
+            console.error('Error saving post:', error);
+            alert(`Failed to save post: ${error.message}`);
+        }
+    }
+    
+    async deletePost(postId) {
+        if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/forum/posts/${postId}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+            
+            console.log('Post deleted successfully');
+            this.loadForumPosts(); // Reload posts
+            
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            alert(`Failed to delete post: ${error.message}`);
+        }
+    }
+    
+    closePostModal() {
+        document.getElementById('postModal').style.display = 'none';
+        this.isEditing = false;
+        this.currentPost = null;
+    }
+    
+    getCourseDisplayName(courseId) {
+        const courseMap = {
+            'estonian-regional-studies': 'Estonian Regional Studies',
+            'introduction-to-estonian-studies': 'Introduction to Estonian Studies',
+            'key-concepts-cultural-analysis': 'Key Concepts in Cultural Analysis',
+            'language-and-society': 'Language and Society',
+            'nationalism-transnational-history': 'Nationalism and Transnational History'
+        };
+        return courseMap[courseId] || courseId;
+    }
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    showError(message) {
+        const container = document.getElementById('forumPostsList');
+        if (container) {
+            container.innerHTML = `
+                <div class="forum-empty-state">
+                    <div class="forum-empty-state-icon">❌</div>
+                    <h3>Error</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Global functions for modal interaction
+function closePostModal() {
+    window.forumManager.closePostModal();
+}
+
+function savePost() {
+    window.forumManager.savePost();
+}

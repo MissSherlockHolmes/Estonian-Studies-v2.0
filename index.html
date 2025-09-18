@@ -6,6 +6,18 @@
         <title>Estonian Studies Notes</title>
         <link rel="stylesheet" href="styles.css">
         <link rel="icon" type="image/svg+xml" href="favicon.svg">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <style>
+            @font-face {
+                font-family: 'Aino-Regular';
+                src: url('https://fonts.gstatic.com/s/sourcesanspro/v22/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7lujVj9w.woff2') format('woff2');
+                font-weight: 400;
+                font-style: normal;
+                font-display: swap;
+            }
+        </style>
     </head>
 <body>
     <div class="container">
@@ -24,7 +36,7 @@
                 <button class="tab-button" data-tab="documents">Documents</button>
                 <button class="tab-button" data-tab="pdf-converter">PDF Converter</button>
                 <button class="tab-button" data-tab="notes">Notes</button>
-                <button class="tab-button" data-tab="research">Research</button>
+                <button class="tab-button" data-tab="research">Forum Posts</button>
                 <button class="tab-button" data-tab="timeline">Timeline</button>
                 <button class="tab-button" data-tab="references">References</button>
                 <button class="tab-button" data-tab="settings">Settings</button>
@@ -394,9 +406,103 @@
             </div>
 
             <div class="tab-content" id="research-content">
-                <div class="placeholder-content">
-                    <h2>Research</h2>
-                    <p>Research management interface will be added here.</p>
+                <div class="forum-container">
+                    <h2 class="section-title">forum posts</h2>
+                    
+                    <!-- Forum Controls -->
+                    <div class="forum-controls">
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>Course:</label>
+                                <select id="forumCourseFilter" class="filter-select">
+                                    <option value="all">All Courses</option>
+                                    <option value="estonian-regional-studies">Estonian Regional Studies</option>
+                                    <option value="introduction-to-estonian-studies">Introduction to Estonian Studies</option>
+                                    <option value="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</option>
+                                    <option value="language-and-society">Language and Society</option>
+                                    <option value="nationalism-transnational-history">Nationalism and Transnational History</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Sort by:</label>
+                                <select id="forumSortFilter" class="filter-select">
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="due-date">Due Date</option>
+                                    <option value="title">Title A-Z</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <button id="createPostBtn" class="action-button primary">📝 Create New Post</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Forum Posts List -->
+                    <div id="forumPostsList" class="forum-posts-list">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Loading forum posts...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Create/Edit Post Modal -->
+                <div id="postModal" class="post-modal" style="display: none;">
+                    <div class="modal-overlay" onclick="closePostModal()"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modalTitle">Create New Post</h3>
+                            <button class="modal-close" onclick="closePostModal()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="postForm">
+                                <div class="form-group">
+                                    <label for="postTitle">Title:</label>
+                                    <input type="text" id="postTitle" placeholder="Enter post title..." class="form-input" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="postCourse">Course:</label>
+                                    <select id="postCourse" class="form-select" required>
+                                        <option value="">Select a course...</option>
+                                        <option value="estonian-regional-studies">Estonian Regional Studies</option>
+                                        <option value="introduction-to-estonian-studies">Introduction to Estonian Studies</option>
+                                        <option value="key-concepts-cultural-analysis">Key Concepts in Cultural Analysis</option>
+                                        <option value="language-and-society">Language and Society</option>
+                                        <option value="nationalism-transnational-history">Nationalism and Transnational History</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="postBody">Content:</label>
+                                    <textarea id="postBody" placeholder="Write your post content..." class="form-textarea" rows="8" required></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="postDueDate">Due Date (optional):</label>
+                                        <input type="datetime-local" id="postDueDate" class="form-input">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="postPriority">Priority:</label>
+                                        <select id="postPriority" class="form-select">
+                                            <option value="normal">Normal</option>
+                                            <option value="high">High</option>
+                                            <option value="urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closePostModal()" class="action-button secondary">Cancel</button>
+                            <button onclick="savePost()" class="action-button primary" id="savePostBtn">💾 Save Post</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

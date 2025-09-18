@@ -12,13 +12,34 @@ No two leaves of any one tree in nature are to be found perfectly alike; and sti
 
 As the human intellect, however, seeks unity in every kind of variety, and the divine mind, its prototype, has stamped the most innumerable multiplicity upon the Earth with unity, we may venture from the vast realm of change to revert to the simplest position: All mankind are only one and the same species.
 
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:31):</strong><br>
+    Here I really like how he assumes that the human intellect is always seeking patterns
+</div>
+
+
+
 How many ancient fables of human monsters and prodigies have already disappeared before the light of history! And where tradition still repeats remnants of these, I am fully convinced, more accurate inquiry will explain them into more beautiful truths. We are now acquainted with the orangutan, and know that he has no claim to speech, or to be considered as man: And when we have a more exact account of the orang-kubub, and orang-guhu, the tailed savages of the woods in Borneo, Sumatra, and the Nicobar Islands will vanish. The men with reverted feet in Malacca, the probably rickety nation of dwarfs in Madagascar, the men habited like women in Florida, and some others, deserve such an investigation as has already been bestowed on the albinoes, the dondoes, the Patagonians, and the aprons of the Hottentot females.[^2] Men, who succeed in removing wants from the creation, falsehoods from our memory, and disgraces from our nature, are to the realms of truth, what the heroes of mythology were to the primitive world; they lessen the number of monsters on the Earth.
 
 For each genus Nature has done enough, and to each has given its proper progeny. The ape she has divided into as many species and varieties as possible, and extended these as far as she could: but thou, O man, honour thyself: neither the pongo nor the gibbon is thy brother: the American and the Negro are: these therefore thou shouldst not oppress, or murder, or steal; for they are men, like thee: with the ape thou canst not enter into fraternity.
 
 Lastly, I could wish the distinctions between the human species, that have been made from a laudable zeal for discriminating science, not carried beyond due bounds. Some for instance have thought fit, to employ the term of races country or complexion: but I see no reason for this appellation. Race refers to a difference of origin, which in this case either does not exist, or in each of these countries, and under each of these complexions, comprises the most different races. For every nation is one people, having its own national form, as well as its own language: the climate, it is true, stamps on each its mark, or spreads over it a slight veil, but not sufficient to destroy the original national character. This originality of character extends even to families, and its transitions are as variable as imperceptible. In short, there are neither four or five races, nor exclusive varieties, on this Earth. Complexions run into each other: forms follow the genetic character: and upon the whole, all are at last but shades of the same great picture, extending through all ages, and over all parts of the Earth. They belong not, therefore, so properly to systematic natural history, as to the physico-geographical history of man.
 
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:32):</strong><br>
+    A bit odd here that he decries race, but highlights nationality.
+</div>
+
+
+
 ## Chapter 2: The One Species of Man Has Naturalized Itself in Every Climate Upon Earth
+
+<div style="background-color: #fff2e6; border-left: 4px solid #ff8800; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>❓ QUESTION (2025-09-17 23:33):</strong><br>
+    So..invasive species?
+</div>
+
+
 
 [^1]: Haller's quote on human internal structure.
 [^2]: Investigation into various human anomalies.
@@ -39,13 +60,34 @@ The Californian, on the verge of the earth, in his barren country, exposed as he
 
 In the first place, it is obvious why all sensual people, fashioned to their country, are so much attached to the soil, and so inseparable from it. The constitution of their body, their way of life, the pleasures and occupations to which they have been accustomed from their infancy, and the whole circle of their ideas, are climatic. Deprive them of their country, you deprive them of everything. [...]
 
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:34):</strong><br>
+    To him it is a fact that all "sensual" people are attached to the soil. Seems he totally wouldn't understand nomads, and perhaps he would consider people who aren't attached to the soil as somehow less human?
+</div>
+
+
+
 No words can express the sorrow and despair of a bought or stolen negro slave, when he leaves his native shore, never more to behold it while he has breath. "Great care must be taken," says Romer,
+
+<div style="background-color: #e6f3ff; border-left: 4px solid #4da6ff; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>ℹ️ INFO (2025-09-17 23:35):</strong><br>
+    This Echoes Gupta and Ferguson on Indigenous Peoples in Key Concepts.
+</div>
+
+
 
 that the slaves do not get hold of a knife, either in the fort, or aboard the ship. To keep them in good humour on their passage to the West Indies requires the utmost exertion. For this purpose violins are provided, with fifes and drums; they are permitted to dance; and they are assured, that they are going to a pleasant country, where they may have as many wives as they please, and plenty of good food. Yet many deplorable instances have been known of their falling upon the crew, murdering them, and letting the ship drive ashore.[^1]
 
 But how many more deplorable instances have been known of these poor stolen wretches destroying themselves in despair! Sparmann informs us, from the mouth of a slave dealer, that at night they are seized with a kind of frenzy, which prompts them to commit murder, either on themselves or others; "for the painful recollection of the irreparable loss of their country and their freedom commonly awakes by night, when the bustle of the day ceases to engage their attention."[^2] And what right have you, monsters! even to approach the country of these unfortunates, much less to tear them from it by stealth, fraud, and cruelty? For ages this quarter of the Globe has been theirs, and they belong to it: their forefathers purchased it at a dear rate, at the price of the Negro form and complexion. In fashioning them the African sun has adopted them as its children, and impressed on them its own seal: wherever you convey them, this brands you as robbers, as stealers of men.
 
 Secondly. Thus the wars of savages for their country, or on account of its children, their brethren, torn from it, or degraded and oppressed, are extremely cruel. Hence, for instance, the lasting hatred of the natives of America toward Europeans, even when these behave to them with tenderness: they cannot suppress the feeling: "This land is ours; you have no business here." Hence the treachery of all savages, as they are called, even when they appear altogether satisfied with the courtesy of European visitors. The moment their hereditary national feelings awake, the flame they have long with difficulty smothered breaks out, rages with violence, and frequently is not appeased, till the flesh of the stranger has been torn by the teeth of the native. To us this seems horrible; and it is so, no doubt: yet the Europeans first urged them to this misdeed: for why did they visit their country? why did they enter it as despots, arbitrarily practicing violence and extortion?[^3] For ages it had been to its inhabitants the universe: they had inherited it from their fathers, and from them too they had inherited the barbarous practice of destroying in the most savage manner all, who would deprive them of their territory, tear them from it, or encroach upon their rights. Thus to them an enemy and a stranger are the same: they resemble the muscipula, which, rooted to its soil, attacks every insect that approaches it: the right of devouring an unbidden or unfriendly guest is the tribute they exact; as Cyclopical a tribute as any in Europe. [...]
+
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:36):</strong><br>
+    That displacement and conquering incites violent revenge.
+</div>
+
+
 
 ## Humanity, the End of Human Nature (Book XV)
 

@@ -2,49 +2,25 @@
 
 *Processed from image-based PDF using granite3.2-vision:latest*
 
-## Page I
-
-### Section 1: Introduction
-
-#### Subsection 1.1 Background Information
-
-This section provides an overview of the topic, including its historical context and current relevance. It also discusses the key concepts and terminology that will be used throughout the document.
-
-#### Subsection 1.2 Objectives
-
-The objectives of this study are to:
-
-- Examine the impact of climate change on global agriculture.
-- Identify potential solutions for mitigating these effects.
-- Analyze the economic implications of these changes.
-
-### Section 2: Methodology
-
-This section outlines the research methodology used in this study, including the data collection and analysis techniques employed. It also discusses any limitations or challenges encountered during the research process.
-
-### Section 3: Results
-
-The results of the study are presented in this section, using tables, graphs, and other visual aids to illustrate key findings. The results demonstrate that climate change has had a significant impact on global agriculture, with negative effects on crop yields and food security.
-
-### Section 4: Discussion
-
-This section discusses the implications of the study's findings for policymakers, farmers, and other stakeholders. It also explores potential solutions to mitigate the effects of climate change on agriculture.
-
-### Conclusion
-
-In conclusion, this study has demonstrated that climate change poses significant challenges to global agriculture. However, it has also identified potential solutions for mitigating these effects and has highlighted the economic implications of these changes. Further research is needed to fully understand the impacts of climate change on agriculture and to develop effective strategies for addressing these challenges.
-
-### References
-
-This section lists all sources used in the study, including any relevant literature or data. It also includes any abbreviations or acronyms that were used throughout the document.
-
-## Page 2
-
 ### Cultural Roots
 
 No more arresting emblems of the modern culture of nationalism exist than cenotaphs and tombs of Unknown Soldiers. The public ceremonial reverence accorded these monuments, precisely because they are either deliberately empty or no one knows who lies inside them, has no true precedents in earlier times. To feel the force of this modernity, one has only to imagine the general reaction to the body who discovered the Unknown Soldier's name or insisted on filling the cenotaph with some real bones. Sacrilege of a strange, contemporary kind! Yet, as these tombs are of identical mortal remains or immortal souls, they are nonetheless saturated with ghostly national imaginings. This is why so many different nations have such tombs without feeling any need to specify the nationality of their absent occupants. What else could they be but Germans, Americans, Argentinians?
 
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:57):</strong><br>
+    Interesting to note that the author believes some Unknown Soldier tombs may be empty. It is not something I ever considered.
+</div>
+
+
+
 The cultural significance of such monuments becomes even clearer if one tries to imagine, say, a Tomb of the Unknown Marxist or a cenotaph for fallen Liberals. Is a sense of absurdity available? The reason is that neither Marxism nor Liberalism are much concerned with death and immortality. If the nationalist imagining is so concerned, this suggests a strong affinity with religious imaginings. As this affinity is by no means fortuitous, it may be useful to begin a consideration of the cultural roots of nationalism with death, as the last of a whole gamut of fatalities.
+
+<div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>✨ HIGHLIGHT (2025-09-17 23:59):</strong><br>
+    This paragraph feels very cynical; as I feel that the Unknown Soldier is more the people mourning those lost to war, where they were often sent involuntarily; and empathizing with surviving family members who will never know closure.
+</div>
+
+
 
 If the manner of a man's dying usually seems arbitrary, his mortality is inescapable. Human lives are full of such combinations of necessity and chance. We are all aware of the contingency and ineluctability of our particular genetic heritage, our gender, our life era, our physical capabilities, our mother tongue, and so forth. The great merit of traditional religious worldviews (which naturally must be distinguished from their role in the legitimation of specific systems of domination and exploitation) has been their concern with man-in-the-cosmos, man as species being, and the continuity of life. The extraordinary survival over thousands of years of Buddhism, Christianity, or Islam in dozens of different social formations attests to their imaginative response to the overwhelming burden of human suffering—disease, mutilation, grief, age, and death. Why was I born blind? Why is my best friend paralyzed? Why is my daughter retarded? The religions attempt to explain. The great weakness of all evolutionary/progressive styles of thought, not excluding Marxism, is that such questions are answered with impatient silence.
 
@@ -91,6 +67,13 @@ Consider, for example, the following 'policy on barbarians' formulated by the ea
 To expand our agriculture it would be necessary to hispanicize our Indians. Their idleness, stupidity, and indifference towards normal endeavours cause one to think that they come from a degenerate race which deteriorates in proportion to the distance from its origin ... it would be very desirable that the Indians be extinguished by miscegenation with the whites, declaring them free of tribute and other charges, and giving them private property in land.
 
 How striking it is that this liberal still proposes to 'extinguish' his Indians in part by 'declaring them free of tribute' and 'giving them private property in land', rather than exterminating them or gun and microbe as his heirs in Brazil, Argentina, and the United States began to do soon afterwards. Note also, alongside the condescending cruelty, a cosmic optimism: the Indian is affirmedly 'redeemed' by impregnation with white, 'civilized' semen, and the acquisition of private property, like everyone else. 
+
+<div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-18 00:06):</strong><br>
+    Seems very similar to russification.
+</div>
+
+
 
 (How different Ferrari's attitude is from the later European imperialist's preference for 'genuine' Malays, Gurkhas, and Hausas over 'half-breeds,' 'semi-educated natives,' 'wogs', and the like.)
 

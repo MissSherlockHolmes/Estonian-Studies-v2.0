@@ -1,6 +1,13 @@
 # Contributors
 
 <div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-18 13:55):</strong><br>
+    test note
+</div>
+
+
+
+<div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
     <strong>📝 NOTE (2025-09-17 22:40):</strong><br>
     Test Note
 </div>
@@ -29,11 +36,25 @@ The term 'invented tradition' is used in a broad, but not imprecise sense. It in
 
 'Invented tradition' is taken to mean a set of practices, normally governed by overtly or tacitly accepted rules and of a ritual or symbolic nature, which seek to inculcate certain values and norms of behavior by repetition, which automatically implies continuity with the past. In fact, where possible, they normally attempt to establish continuity with a suitable historic past. A striking example is the deliberate choice of a Gothic style for the nineteenth-century rebuilding of the British Parliament, and the equally deliberate decision after World War II to rebuild the parliamentary chamber on exactly the same basic plan as before. The historic past into which the new tradition is inserted need not be lengthy, stretching back into the assumed mists of time. Revolutions and 'progressive movements' which break with the past, by definition, have their own relevant past, though it may be cut off at a certain date, such as 1789. However, insofar as there is such reference to a historic past, the peculiarity of 'invented' traditions is that the continuity with it is largely factitious. In short, they are responses to novel situations which take the form of reference to old situations, or which establish their own 'past' by quasi-obligatory repetition. It is the contrast between the constant change and innovation of the modern world and the structure of at least some areas of social life within it as unchanging and invariant that makes the 'invention of tradition' so interesting for historians of the past two centuries.
 
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:18):</strong><br>
+    This is reminding me of people who say "it's always been done that way" and Boomers, who "don't want anything to change", but the interesting part is that many quotes refer to change being inevitable, and many motivational speakers talk about embracing change
+</div>
+
+
+
 ## 'Tradition' and 'Custom'
 
 'Tradition' in this sense must be distinguished clearly from 'custom,' which dominates so-called 'traditional' societies. The object and characteristic of 'traditions,' including invented ones, is invariance. The past, real or invented, to which they refer imposes fixed (normally formalized) practices, such as repetition. 'Custom' in traditional societies has the double function of motor and flywheel. It does not preclude innovation and change up to a point, though evidently the requirement that it must appear compatible or even identical with precedent imposes substantial limitations on it. What it does is to give any desired change (or resistance to innovation) the sanction of precedent, social continuity, and natural law as expressed in history.
 
 Students of peasant movements know that a village's claim to some common land or right 'by custom from time immemorial' often expresses not a historical fact, but the balance of forces in the constant struggle of village against lords or against other villages. Students of the British labour movement know that 'the custom of the trade' or of the shop may represent not ancient tradition, but whatever right the workers have established in practice, however recently, and which they now attempt to extend or defend by giving customary sanction or the sanction of perpetuity. Common law still shows this combination of flexibility in substance and formal adherence to precedent. The difference between 'tradition' and 'custom' in our sense is indeed well illustrated here.
+
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-17 23:19):</strong><br>
+    In this way it is difficult to tell the difference between custom and reparations?
+</div>
+
+
 
 ### The Role of Custom
 
@@ -45,11 +66,25 @@ A second, less important distinction that must be made is between 'tradition' in
 
 Societies since the industrial revolution have naturally been obliged to invent, institute, or develop new networks of such convention or routine more frequently than previous ones. Insofar as they function best when turned into habit, automatic procedure, or even reflex action, they require invariance, which may get in the way of the other necessary requirement of practice: the capacity to deal with unforeseen or inhabitual contingencies. This is a well-known weakness of routinization or bureaucratization, particularly at the subaltern levels where invariant performance is generally considered the most efficient.
 
+<div style="background-color: #fff2e6; border-left: 4px solid #ff8800; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>❓ QUESTION (2025-09-17 23:21):</strong><br>
+    Is this referring to mass production, or the industrial revolution?
+</div>
+
+
+
 Such networks of convention and routine are not 'invented traditions,' since their functions, and therefore their justifications, are technical rather than ideological (in Marxian terms, they belong to 'base' rather than 'superstructure'). They are designed to facilitate a practice abandoned to meet practical needs, always allowing for the changing inertia which any practice acquires with time and the emotional resistance to any innovation by people who have become attached to it.
 
 ### Pragmatic Norms and Tradition
 
 The same applies to the recognized 'rules' of games or other patterns of social interaction, where these exist, or to any other pragmatically based norms. Where these exist in combination with 'tradition,' the difference is readily observable. Wearing hard hats when riding makes practical sense, like wearing crash helmets for motorcyclists or steel helmets for soldiers; wearing a particular type of hard hat in combination with hunting pink makes an entirely different kind of sense. If this were not so, it would be as easy to change the 'traditional' costume of fox-hunters as it is to substitute a differently shaped helmet in armies—rather conservative institutions—if it can be shown to provide more effective protection.
+
+<div style="background-color: #e6ffe6; border-left: 4px solid #4dff4d; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-18 12:52):</strong><br>
+    This again reminds me of meeting people who think that things work a certain way, which is how Herder seemed to think.
+</div>
+
+
 
 Indeed, it may be suggested that 'traditions' and pragmatic conventions or routines are inversely related. 'Tradition' shows weakness when, as among liberal Jews, dietary prohibitions are justified pragmatically, as by arguing that the ancient Hebrews banned pork on grounds of hygiene. Conversely, objects or practices are liberated for full symbolic and ritual use when no longer fettered by practical use. The spurs of cavalry officers' dress uniforms are of little importance for 'tradition' when there are no horses; the umbrellas of Guards officers in civilian dress lose their significance when not carried tightly furled (that is, useless); the wigs of lawyers could hardly acquire their modern significance until other people stopped wearing wigs.
 

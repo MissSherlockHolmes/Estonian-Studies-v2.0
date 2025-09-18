@@ -9,8 +9,9 @@ import tempfile
 import zipfile
 import json
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from io import BytesIO
+from pathlib import Path
 from config import validate_config, PDF_SERVICES_CLIENT_ID, PDF_SERVICES_CLIENT_SECRET
 from ollama_converter import OllamaConverter
 from gpt_converter import MDPrettifier
@@ -25,6 +26,7 @@ from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from typing import List, Optional
 import uvicorn
 
 from adobe.pdfservices.operation.auth.service_principal_credentials import ServicePrincipalCredentials
@@ -1069,6 +1071,218 @@ async def generate_quiz(file_path: str = Form(...)):
     except Exception as e:
         logger.error(f"Error generating quiz: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate quiz: {str(e)}")
+
+# Forum Posts Data Models
+class ForumPostCreate(BaseModel):
+    title: str
+    course: str
+    body: str
+    priority: str = "normal"
+    due_date: Optional[str] = None
+
+class ForumPostUpdate(BaseModel):
+    title: Optional[str] = None
+    course: Optional[str] = None
+    body: Optional[str] = None
+    priority: Optional[str] = None
+    due_date: Optional[str] = None
+
+class ForumPost(BaseModel):
+    id: int
+    title: str
+    course: str
+    body: str
+    priority: str
+    due_date: Optional[str] = None
+    created_at: str
+    updated_at: str
+
+# In-memory storage for forum posts (in production, use a database)
+forum_posts = []
+next_post_id = 1
+
+# Forum posts storage directory
+FORUM_POSTS_DIR = Path("Forum_Posts")
+
+def save_forum_posts_to_file(course: str, posts: List[ForumPost]):
+    """Save forum posts for a specific course to a JSON file"""
+    course_dir = FORUM_POSTS_DIR / course
+    course_dir.mkdir(parents=True, exist_ok=True)
+    
+    posts_file = course_dir / "posts.json"
+    posts_data = [post.dict() for post in posts]
+    
+    with open(posts_file, 'w', encoding='utf-8') as f:
+        json.dump(posts_data, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Saved {len(posts)} forum posts for course {course} to {posts_file}")
+
+def load_forum_posts_from_files():
+    """Load all forum posts from course-specific JSON files"""
+    all_posts = []
+    
+    if not FORUM_POSTS_DIR.exists():
+        return all_posts
+    
+    for course_dir in FORUM_POSTS_DIR.iterdir():
+        if course_dir.is_dir():
+            posts_file = course_dir / "posts.json"
+            if posts_file.exists():
+                try:
+                    with open(posts_file, 'r', encoding='utf-8') as f:
+                        posts_data = json.load(f)
+                    
+                    for post_data in posts_data:
+                        all_posts.append(ForumPost(**post_data))
+                    
+                    logger.info(f"Loaded {len(posts_data)} forum posts from {course_dir.name}")
+                except Exception as e:
+                    logger.error(f"Error loading posts from {posts_file}: {e}")
+    
+    return all_posts
+
+def get_course_posts(course: str) -> List[ForumPost]:
+    """Get forum posts for a specific course"""
+    course_dir = FORUM_POSTS_DIR / course
+    posts_file = course_dir / "posts.json"
+    
+    if not posts_file.exists():
+        return []
+    
+    try:
+        with open(posts_file, 'r', encoding='utf-8') as f:
+            posts_data = json.load(f)
+        
+        return [ForumPost(**post_data) for post_data in posts_data]
+    except Exception as e:
+        logger.error(f"Error loading posts from {posts_file}: {e}")
+        return []
+
+# Load existing forum posts on startup
+forum_posts = load_forum_posts_from_files()
+if forum_posts:
+    next_post_id = max(post.id for post in forum_posts) + 1
+    logger.info(f"Loaded {len(forum_posts)} existing forum posts, next ID: {next_post_id}")
+
+# Forum Posts Endpoints
+@app.get("/forum/posts")
+async def get_forum_posts():
+    """Get all forum posts"""
+    return {"posts": forum_posts}
+
+@app.post("/forum/posts", response_model=ForumPost)
+async def create_forum_post(post: ForumPostCreate):
+    """Create a new forum post"""
+    global next_post_id
+    
+    # Validate course
+    valid_courses = [
+        "estonian-regional-studies",
+        "introduction-to-estonian-studies", 
+        "key-concepts-cultural-analysis",
+        "language-and-society",
+        "nationalism-transnational-history"
+    ]
+    
+    if post.course not in valid_courses:
+        raise HTTPException(status_code=400, detail="Invalid course")
+    
+    # Validate priority
+    valid_priorities = ["normal", "high", "urgent"]
+    if post.priority not in valid_priorities:
+        raise HTTPException(status_code=400, detail="Invalid priority")
+    
+    # Create new post
+    now = datetime.now().isoformat()
+    new_post = ForumPost(
+        id=next_post_id,
+        title=post.title,
+        course=post.course,
+        body=post.body,
+        priority=post.priority,
+        due_date=post.due_date,
+        created_at=now,
+        updated_at=now
+    )
+    
+    forum_posts.append(new_post)
+    next_post_id += 1
+    
+    # Save to file
+    course_posts = [p for p in forum_posts if p.course == post.course]
+    save_forum_posts_to_file(post.course, course_posts)
+    
+    logger.info(f"Created forum post: {new_post.title} (ID: {new_post.id})")
+    return new_post
+
+@app.get("/forum/posts/{post_id}", response_model=ForumPost)
+async def get_forum_post(post_id: int):
+    """Get a specific forum post by ID"""
+    post = next((p for p in forum_posts if p.id == post_id), None)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
+@app.put("/forum/posts/{post_id}", response_model=ForumPost)
+async def update_forum_post(post_id: int, post_update: ForumPostUpdate):
+    """Update a forum post"""
+    post = next((p for p in forum_posts if p.id == post_id), None)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Update fields if provided
+    if post_update.title is not None:
+        post.title = post_update.title
+    if post_update.course is not None:
+        # Validate course
+        valid_courses = [
+            "estonian-regional-studies",
+            "introduction-to-estonian-studies", 
+            "key-concepts-cultural-analysis",
+            "language-and-society",
+            "nationalism-transnational-history"
+        ]
+        if post_update.course not in valid_courses:
+            raise HTTPException(status_code=400, detail="Invalid course")
+        post.course = post_update.course
+    if post_update.body is not None:
+        post.body = post_update.body
+    if post_update.priority is not None:
+        # Validate priority
+        valid_priorities = ["normal", "high", "urgent"]
+        if post_update.priority not in valid_priorities:
+            raise HTTPException(status_code=400, detail="Invalid priority")
+        post.priority = post_update.priority
+    if post_update.due_date is not None:
+        post.due_date = post_update.due_date
+    
+    # Update timestamp
+    post.updated_at = datetime.now().isoformat()
+    
+    # Save to file
+    course_posts = [p for p in forum_posts if p.course == post.course]
+    save_forum_posts_to_file(post.course, course_posts)
+    
+    logger.info(f"Updated forum post: {post.title} (ID: {post.id})")
+    return post
+
+@app.delete("/forum/posts/{post_id}")
+async def delete_forum_post(post_id: int):
+    """Delete a forum post"""
+    global forum_posts
+    
+    post = next((p for p in forum_posts if p.id == post_id), None)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    forum_posts = [p for p in forum_posts if p.id != post_id]
+    
+    # Save to file
+    course_posts = [p for p in forum_posts if p.course == post.course]
+    save_forum_posts_to_file(post.course, course_posts)
+    
+    logger.info(f"Deleted forum post: {post.title} (ID: {post.id})")
+    return {"message": "Post deleted successfully"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
