@@ -1351,7 +1351,7 @@ body {
     border-radius: 8px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 1.1rem;
     transition: all 0.3s ease;
 }
 
@@ -1363,7 +1363,9 @@ body {
 
 .form-textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 200px;
+    font-size: 1.1rem;
+    line-height: 1.6;
 }
 
 .form-row {
@@ -1606,6 +1608,28 @@ body {
     background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.action-button.toggle-content {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.action-button.toggle-content:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
 }
 
 .loading-spinner {
@@ -1905,6 +1929,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
 }
 
 .post-modal .modal-overlay {
@@ -1922,11 +1948,12 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
+    width: 100%;
+    max-width: 1000px;
+    max-height: calc(100vh - 4rem);
     overflow-y: auto;
     box-shadow: var(--shadow-lg);
+    margin: auto;
 }
 
 .post-modal .modal-header {
@@ -1960,7 +1987,7 @@ body {
 }
 
 .post-modal .modal-body {
-    padding: 2rem;
+    padding: 2.5rem;
 }
 
 .post-modal .modal-footer {

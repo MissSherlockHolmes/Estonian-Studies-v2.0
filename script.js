@@ -864,14 +864,19 @@ class DocumentViewer {
             return;
         }
         
-        // For DOCX and PPTX files, show a professional interface since browsers can't display them natively
+        // For DOCX and PPTX files, use Microsoft Office Online viewer
         if (isDOCX || isPPTX) {
             const fileType = isDOCX ? 'Word Document' : 'PowerPoint Presentation';
             const icon = isDOCX ? '📄' : '📊';
             const viewerEndpoint = isDOCX ? 'docx-viewer' : 'pptx-viewer';
             const fileUrl = `${this.apiBaseUrl}/${viewerEndpoint}/${filePath}`;
             
-            iframe.srcdoc = `
+            // Try Microsoft Office Online viewer first, with Google Docs as backup
+            const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+            const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+            
+            // Create a fallback interface in case both viewers fail
+            const fallbackHTML = `
                 <html>
                     <head>
                         <style>
@@ -965,6 +970,58 @@ class DocumentViewer {
                     </body>
                 </html>
             `;
+            
+            // Try to load the Office viewer, with Google Docs as fallback
+            let viewerAttempt = 0;
+            const maxAttempts = 2;
+            
+            function tryViewer() {
+                if (viewerAttempt === 0) {
+                    console.log('Trying Microsoft Office Online viewer...');
+                    iframe.src = officeViewerUrl;
+                } else if (viewerAttempt === 1) {
+                    console.log('Office viewer failed, trying Google Docs viewer...');
+                    iframe.src = googleViewerUrl;
+                } else {
+                    console.log('All viewers failed, showing fallback interface');
+                    iframe.srcdoc = fallbackHTML;
+                }
+                viewerAttempt++;
+            }
+            
+            iframe.onerror = function() {
+                if (viewerAttempt < maxAttempts) {
+                    setTimeout(tryViewer, 1000);
+                } else {
+                    iframe.srcdoc = fallbackHTML;
+                }
+            };
+            
+            iframe.onload = function() {
+                // Check if the iframe loaded successfully
+                setTimeout(() => {
+                    try {
+                        // If we can access the iframe content, viewer worked
+                        if (iframe.contentDocument && iframe.contentDocument.body) {
+                            console.log('Viewer loaded successfully');
+                        } else {
+                            // Viewer failed, try next option
+                            if (viewerAttempt < maxAttempts) {
+                                setTimeout(tryViewer, 1000);
+                            } else {
+                                iframe.srcdoc = fallbackHTML;
+                            }
+                        }
+                    } catch (e) {
+                        // Cross-origin error means viewer is working
+                        console.log('Viewer loaded (cross-origin)');
+                    }
+                }, 2000);
+            };
+            
+            // Start with Office viewer
+            tryViewer();
+            iframe.style.backgroundColor = '#ffffff';
             return;
         } else {
             // Unknown file type
@@ -1808,6 +1865,9 @@ class ForumManager {
                 <div class="forum-post-header">
                     <h3 class="forum-post-title">${this.escapeHtml(post.title)}</h3>
                     <div class="forum-post-actions">
+                        <button class="action-button toggle-content" onclick="window.forumManager.togglePostContent(${post.id})" title="Toggle content visibility">
+                            👁️ Show
+                        </button>
                         <button class="action-button secondary" onclick="window.forumManager.editPost(${post.id})" title="Edit Post">
                             ✏️ Edit
                         </button>
@@ -1833,7 +1893,7 @@ class ForumManager {
                     ` : ''}
                 </div>
                 
-                <div class="forum-post-body">${this.escapeHtml(post.body)}</div>
+                <div class="forum-post-body" id="post-body-${post.id}" style="display: none;">${this.escapeHtml(post.body)}</div>
                 
                 <div class="forum-post-footer">
                     <div class="forum-post-timestamp">
@@ -1848,6 +1908,57 @@ class ForumManager {
     addPostActionListeners() {
         // Event listeners are added via onclick attributes in the HTML
         // This method can be used for additional event handling if needed
+    }
+    
+    togglePostContent(postId) {
+        console.log('togglePostContent called for post:', postId);
+        const postBody = document.getElementById(`post-body-${postId}`);
+        const toggleButton = document.querySelector(`[onclick="window.forumManager.togglePostContent(${postId})"]`);
+        
+        console.log('postBody found:', !!postBody);
+        console.log('toggleButton found:', !!toggleButton);
+        
+        if (!postBody || !toggleButton) {
+            console.log('Missing elements, returning');
+            return;
+        }
+        
+        if (postBody.style.display === 'none') {
+            // Show content
+            postBody.style.display = 'block';
+            toggleButton.innerHTML = '👁️ Hide';
+            toggleButton.title = 'Hide content';
+            console.log('Showing content for post:', postId);
+        } else {
+            // Hide content
+            postBody.style.display = 'none';
+            toggleButton.innerHTML = '👁️ Show';
+            toggleButton.title = 'Show content';
+            console.log('Hiding content for post:', postId);
+        }
+    }
+    
+    toggleAllPosts() {
+        const allPostBodies = document.querySelectorAll('[id^="post-body-"]');
+        const allToggleButtons = document.querySelectorAll('[onclick*="togglePostContent"]');
+        
+        if (allPostBodies.length === 0) return;
+        
+        // Check if any posts are currently visible
+        const anyVisible = Array.from(allPostBodies).some(body => body.style.display !== 'none');
+        
+        console.log('Toggle all posts - any visible:', anyVisible);
+        
+        // Toggle all posts to the opposite state
+        allPostBodies.forEach(body => {
+            body.style.display = anyVisible ? 'none' : 'block';
+        });
+        
+        // Update all toggle buttons
+        allToggleButtons.forEach(button => {
+            button.innerHTML = anyVisible ? '👁️ Show' : '👁️ Hide';
+            button.title = anyVisible ? 'Show content' : 'Hide content';
+        });
     }
     
     getFilteredPosts() {

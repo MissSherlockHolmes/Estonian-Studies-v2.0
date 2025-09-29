@@ -28,6 +28,45 @@
 
 ## Invented Traditions
 
+<div style="background-color: #ffe6e6; border-left: 4px solid #ff4444; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>🚨 IMPORTANT (2025-09-18 17:03):</strong><br>
+    Hobsbawm = assumesthat lack of knowledge about the reason → therefore “invented.” Argument from ignorance.
+
+
+
+Real traditions often evolve organically, messy, layered → not “invented” but adapted/reinterpreted.
+
+
+
+Nationalism thrives on retroactive storytelling → useful to study how symbols are mobilized, not whether they’re “real/fake.” Hobsbawm has a flaw in his argument, where it doesn't matter how traditions are created, but rather how they are used later as tools of manipulation. 
+
+
+
+Eurocentric bias: assumes top-down invention by states/elites, ignores bottom-up or transnational borrowings.
+
+
+
+Example: “Indian Punch Bowl” Fredericksburg → folklore of Native ritual vs. mundane washing basin. Reinterpretation, not invention.
+
+<div style="background-color: #e6f3ff; border-left: 4px solid #4da6ff; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-18 17:07):</strong><br>
+    Reminds me of the story about a woman who always cut off the end of a ham, and then her daughter grew up and did it. Then her mother asked why, and the daughter said "because you always did" and the mother laughed and said "That's because I didn't have a big enough pan"
+</div>
+
+
+Hobsbawm became canon because academia ritualized him. His own concept is an “invented tradition.”
+
+
+
+His framework functions like the things he describes: catchy, institutionalized, repeated → gains authority without being inherently solid.
+
+
+
+Irony: Hobsbawm is an invented tradition.
+</div>
+
+
+
 Eric Hobsbawm
 
 Nothing appears more ancient and linked to an immemorial past than the pageantry that surrounds the British monarchy in its public ceremonial manifestations. Yet, as a chapter in this book establishes, in its modern form it is the product of the late nineteenth and twentieth centuries. 'Traditions' which appear or claim to be old are often quite recent in origin and sometimes invented. Anyone familiar with the colleges of ancient British universities will be able to think of the institution of such 'traditions' on a local scale, though some—like the annual Festival of Nine Lessons and Carols in the chapel of King's College, Cambridge on Christmas Eve—may become generalized through the modern mass medium of radio. This observation formed the starting point of a conference organized by the historical journal *Past & Present*, which in turn forms the basis of the present book.
@@ -61,6 +100,13 @@ Students of peasant movements know that a village's claim to some common land or
 'Custom' surrounds substantial action. The decline of 'custom' inevitably changes the 'tradition' with which it is habitually intertwined. This is what judges do; 'tradition' (in this instance invented tradition) is the wig, robe, and other formal paraphernalia and ritualized practices.
 
 A second, less important distinction that must be made is between 'tradition' in our sense and convention or routine, which has no significant ritual or symbolic function as such, though it may acquire it incidentally. It is evident that any social practice that needs to be carried out repeatedly will tend, for convenience and efficiency, to develop a set of such conventions and routines, which may be de facto or de jure formalized for the purposes of imparting the practice to new practitioners. This applies to unprecedented practices (such as the work of an aircraft pilot) as much as to long-familiar ones.
+
+<div style="background-color: #fff8dc; border-left: 4px solid #ffd700; padding: 12px; margin: 12px 0; border-radius: 6px; color: #2c2c2c; font-family: Arial, sans-serif;">
+    <strong>📝 NOTE (2025-09-18 17:00):</strong><br>
+    This reminds me of a historic marker in my hometown where there was a rock near the river which was claimed to have been discovered by Francis Thronton, a colonist. Supposedly it was used by the Indians as a place to mix poison for their arrows, and supposedly later as a punch bowl for river parties by Thornton. Growing up in the town, I can conclusively affirm that the area on the bank of that river is a terrible place to have a party, and I decided as a child that the historians were very stupid, and that the rock bowl was very obviously for doing laundry.
+</div>
+
+
 
 ### The Impact of Industrialization
 
